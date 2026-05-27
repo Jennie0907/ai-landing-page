@@ -1,0 +1,67 @@
+/* GradientText — react-bits GradientText-JS-CSS (vanilla port) */
+
+.gradient-text {
+  display: inline;
+  position: relative;
+  background-image: linear-gradient(
+    90deg,
+    var(--gradient-c1),
+    var(--gradient-c2),
+    var(--gradient-c3),
+    var(--gradient-c1)
+  );
+  background-size: 300% 100%;
+  background-position: 0% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-text--border::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  padding: 0.06em;
+  border-radius: 0.12em;
+  background-image: inherit;
+  background-size: inherit;
+  background-position: inherit;
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: blur(0.5px);
+  opacity: 0.35;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gradient-text {
+    animation: gradient-text-shift var(--gradient-duration, 8s) linear infinite;
+  }
+}
+
+@keyframes gradient-text-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gradient-text {
+    animation: none;
+    background-position: 50% 50%;
+  }
+}
+
+/* Hero 标题内「即可下单」 */
+.hero__title .gradient-text.custom-class {
+  font: inherit;
+  letter-spacing: inherit;
+  --gradient-c1: #376dee;
+  --gradient-c2: #10b96a;
+  --gradient-c3: #b497cf;
+  --gradient-duration: 8s;
+}
