@@ -1,0 +1,265 @@
+# MEXC Landing Page — Cursor Rules
+# Source: Figma → AI功能介绍页 + Web 理财页 light 变量
+# 字体: MEXC Sans
+# 主题: **Light Mode（日间主题）** — 默认且当前唯一启用主题
+
+---
+
+## 核心原则
+
+这是 MEXC 官网 AI 功能落地页项目。所有代码必须符合 MEXC 设计系统规范：
+- **默认日间主题**（white-first），背景以白 `#ffffff` 为基础，靠层级填充 / 边框 / 阴影做分层
+- **蓝色为品牌主色**（`#0057ff` light / `#1463ff` dark），用于 CTA 按钮、链接、强调元素
+- **绿色仅用于涨价/盈利场景**（light `#0aa869`），红色仅用于跌价/亏损/错误场景（`#ff4761`）
+- 主字体为 **MEXC Sans**，数字/价格用等宽字体
+- 所有色值引用 `tokens.css` 中的 CSS 变量，**禁止硬编码任何色值**
+- `tokens.css` 已经是 light 默认 + `[data-theme="dark"]` 覆盖的双主题结构，**当前 `<html>` 不带 data-theme，整页保持 light**
+- 若未来要切回暗色，只需在 `<html data-theme="dark">` 上加属性，无需改组件代码
+
+---
+
+## 设计令牌使用规范
+
+项目根目录已有 `tokens.css`，在全局样式第一行引入：
+
+```css
+@import './tokens.css';
+```
+
+```css
+/* ✅ 正确 */
+background: var(--color-bg-page);
+color: var(--color-text-primary);
+border: 1px solid var(--color-line-base);
+
+/* ❌ 错误 — 绝对禁止硬编码 */
+background: #ffffff;
+color: #0d0e0f;
+```
+
+---
+
+## 颜色规范（Light Mode，全部来自 Figma 变量）
+
+### 品牌色（蓝色系）
+```
+--color-brand-default:   #0057ff ← CTA 按钮、链接、主要操作
+--color-brand-hover:     #0047e0 ← hover 状态
+--color-brand-pressed:   #0039c0 ← 按下状态
+--color-brand-container: #b4bfd61f ← 品牌色容器背景（tag、用户气泡等浅蓝底）
+--color-brand-tint:      #1463ff33 ← 蓝色 tint
+--color-text-brand:      #0057ff ← 蓝色文字
+```
+
+### 涨跌色（严格区分，不可混用）
+```
+--color-up:   #0aa869 ← 涨价/盈利/成功（绿）
+--color-down: #ff4761 ← 跌价/亏损/错误（红）
+```
+
+### 背景层级（由浅到深，严格按语义使用）
+| 变量 | Light 色值 | 用途 |
+|------|-----------|------|
+| `--color-bg-l0` / `--color-bg-page` | `#ffffff` | 页面 / Header 主背景 |
+| `--color-bg-l1` / `--color-bg-l2` / `--color-bg-fill` | `#0023660a` | 区块/卡片次级背景（极淡蓝） |
+| `--color-bg-card` / `--color-bg-overlay` | `#ffffff` | 卡片、弹层主体（靠 shadow + border 区分） |
+| `--color-bg-table` | `#f7f8fa` | 表格交替行 |
+
+### 文字层级
+| 变量 | Light 色值 | 用途 |
+|------|-----------|------|
+| `--color-text-primary` | `#0d0e0f` | 标题、正文（近黑） |
+| `--color-text-secondary` | `#87909f` | 次要说明、label、图标 |
+| `--color-text-tertiary` | `#a2a9b6` | 辅助文字、placeholder |
+| `--color-text-white` | `#ffffff` | 在深色按钮 / 品牌色背景上的反色文字 |
+| `--color-text-brand` | `#0057ff` | 品牌蓝文字 |
+
+### 边框 / 分割线（极淡蓝色系）
+```
+--color-line-base:    #0023660f  ← 通用边框（约 6% 透明度）
+--color-line-strong:  #00236629  ← 强调边框
+--color-line-dashed:  #00236652  ← 虚线分割
+```
+
+### 阴影（Light 下的主要分层手段）
+```
+--shadow-sm:     0 1px 4px rgba(0, 0, 0, 0.08)
+--shadow-md:     0 4px 16px rgba(0, 0, 0, 0.10)
+--shadow-lg:     0 8px 32px rgba(0, 0, 0, 0.12)
+--shadow-brand:  0 4px 20px rgba(0, 87, 255, 0.20)
+```
+
+---
+
+## 字体规范（MEXC Sans 优先）
+
+```css
+body {
+  font-family: var(--font-family-base);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text-primary);
+  background: var(--color-bg-page);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 价格、数字、百分比 — 必须用等宽字体 */
+.price, .number, [data-type="price"] {
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+```
+
+### Typography Scale（直接对应 Figma 组件名）
+| Figma 名称 | 字号/行高 | 字重 | CSS 变量 |
+|-----------|----------|------|---------|
+| Display/L-56 Bold | 56px / 64px | 700 | `--text-display-56` |
+| Display/1-36 Bold | 36px / 44px | 700 | `--text-display-36` |
+| Headline/M-32 Bold | 32px / 40px | 700 | `--text-headline-32` |
+| Title/0-24 Bold | 24px / 32px | 700 | `--text-title-24` |
+| Title/1-20 Bold | 20px / 28px | 700 | `--text-title-20` |
+| Title/0-18 Bold | 18px / 26px | 600 | `--text-title-18` |
+| Title/2-16 Bold | 16px / 24px | 700 | `--text-title-16` |
+| Body/XL-20 Regular | 20px / 28px | 400 | `--text-body-20` |
+| Body/1-16 Medium | 16px / 24px | 500 | `--text-body-16` |
+| Body/M-14 Medium | 14px / 20px | 500 | `--text-body-14-med` |
+| Body/M-14 Regular | 14px / 20px | 400 | `--text-body-14` |
+| Body/S-12 Regular | 12px / 16px | 400 | `--text-body-12` |
+
+---
+
+## 组件规范
+
+### CTA 主按钮（品牌蓝）
+```css
+.btn-primary {
+  background: var(--color-brand-default); /* #0057ff */
+  color: var(--color-text-white);
+  border-radius: var(--radius-md);
+  font: var(--text-body-14-med);
+  padding: 10px var(--spacing-6);
+  border: none;
+  transition: background var(--transition-fast);
+  box-shadow: var(--shadow-brand);
+}
+.btn-primary:hover  { background: var(--color-brand-hover); }
+.btn-primary:active { background: var(--color-brand-pressed); }
+```
+
+### Ghost / 线框按钮
+```css
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--color-line-strong);
+  color: var(--color-text-primary);
+  border-radius: var(--radius-md);
+}
+.btn-ghost:hover {
+  border-color: var(--color-brand-default);
+  color: var(--color-brand-default);
+}
+```
+
+### 卡片（Light：白底 + 浅边框 + 柔和阴影）
+```css
+.card {
+  background: var(--color-bg-card);             /* #ffffff */
+  border: 1px solid var(--color-line-base);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+}
+```
+
+### 输入框
+```css
+.input {
+  background: var(--color-bg-fill);             /* 极淡蓝 */
+  border: 1px solid var(--color-line-base);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font: var(--text-body-14);
+  padding: var(--spacing-xsm) var(--spacing-sm);
+}
+.input:focus {
+  border-color: var(--color-brand-default);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-brand-tint);
+}
+.input::placeholder { color: var(--color-text-tertiary); }
+```
+
+### Header / 导航栏（Light：白底 + 下边框 + 模糊）
+```css
+header {
+  background: var(--color-bg-l0);               /* #ffffff */
+  border-bottom: 1px solid var(--color-line-base);
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  backdrop-filter: blur(12px);
+}
+```
+
+---
+
+## 布局规范
+
+```css
+.container {
+  max-width: var(--layout-content-width);   /* 1280px */
+  margin: 0 auto;
+  padding: 0 var(--layout-gutter);          /* 0 24px */
+}
+
+section { padding: var(--spacing-20) 0; }    /* 80px 上下 */
+
+/* 响应式断点 */
+/* sm: ≥ 375px 手机 */
+/* md: ≥ 768px 平板 */
+/* lg: ≥ 1280px 桌面 */
+/* xl: ≥ 1440px 大屏 */
+```
+
+---
+
+## 品牌渐变（仅 Hero 等关键视觉使用）
+
+```css
+/* 蓝色光晕 — Hero 背景装饰（Light：低饱和、低透明度） */
+.hero-glow {
+  background:
+    radial-gradient(60% 50% at 18% 18%, rgba(0, 87, 255, 0.08) 0%, transparent 65%),
+    radial-gradient(50% 45% at 88% 28%, rgba(0, 87, 255, 0.05) 0%, transparent 70%);
+}
+```
+
+> Light 模式下避免使用大面积、高饱和的渐变背景，会让页面显脏。
+
+---
+
+## 禁止事项（AI 生成代码必须规避）
+
+1. **禁止**深色或纯黑背景作为 Light 模式默认 — 这是日间主题
+2. **禁止**硬编码任何色值，必须使用 `tokens.css` 变量
+3. **禁止**用蓝色 `#0057ff` 表示涨价（蓝色是品牌色，不是涨跌色）
+4. **禁止**用绿色 `#0aa869` 作为 CTA 按钮色（绿色只用于涨价）
+5. **禁止**使用衬线字体（serif）
+6. **禁止**圆角超过 `--radius-xl`（16px）
+7. **禁止**将红色 `#ff4761` 用于 CTA 或强调（红色只用于跌价/错误）
+8. **禁止**随意使用高饱和渐变背景
+9. **禁止**给 `<html>` 添加 `data-theme="dark"`，除非用户明确要求切换暗色
+
+---
+
+## 每次生成组件前自检清单
+
+- [ ] 背景色是否为 light 系变量？（默认 `--color-bg-page` 或 `--color-bg-card`）
+- [ ] CTA 按钮是否用了品牌蓝 `--color-brand-default`？
+- [ ] 涨跌色是否严格区分绿/红？
+- [ ] 文字是否按 primary/secondary/tertiary 层级使用？
+- [ ] 数字/价格是否用了等宽字体？
+- [ ] 卡片是否用了 `--shadow-sm` 或 `--shadow-md` 做层级提升？
+- [ ] 是否有任何硬编码色值？
