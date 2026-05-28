@@ -45,6 +45,7 @@
   --color-bg-l1:            #0023660a; /* bg/l1 — 区块/卡片背景（极淡蓝） */
   --color-bg-l2:            #0023660a; /* bg/l2 */
   --color-bg-fill:          #0023660a; /* fill/default */
+  --color-bg-fill-hover:    #0023660f; /* fill/hover — 6% 蓝灰填充（按钮 hover） */
   --color-bg-table:         #f7f8fa;   /* fill/table-accent — 表格交替行 */
   --color-bg-table-0:       rgb(247 248 250 / 0); /* --color-bg-table 的零透明度版，用于渐变防止 Chrome 插值发黑 */
   --color-bg-segment:       #ffffff;   /* fill/segment-selected */
@@ -151,6 +152,7 @@
   --font-family-base: 'MEXC Sans', 'Inter', -apple-system, BlinkMacSystemFont,
                       'PingFang SC', 'Microsoft YaHei', sans-serif;
   --font-family-mono: 'Roboto Mono', 'SF Mono', monospace; /* 价格/数字专用 */
+  --font-family-sf: 'SF Pro Text', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif; /* 订单数字等 UI 数字 */
 
   /* 字号 */
   --font-size-12: 12px;

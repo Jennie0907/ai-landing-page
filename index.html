@@ -76,37 +76,76 @@
       padding: 0 var(--layout-gutter);
     }
 
+    /* ── Scroll Reveal：滚动到视口时的入场动画（参考 pixso.cn） ── */
+    [data-reveal] {
+      opacity: 0;
+      transform: translateY(24px);
+      transition:
+        opacity 720ms cubic-bezier(0.22, 0.61, 0.36, 1),
+        transform 720ms cubic-bezier(0.22, 0.61, 0.36, 1);
+      transition-delay: var(--reveal-delay, 0ms);
+      will-change: opacity, transform;
+    }
+
+    [data-reveal].is-visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* 子元素错落入场：仅渐显，不做 translate，避免与卡片 hover transform 冲突 */
+    [data-reveal-children] > * {
+      opacity: 0;
+      transition: opacity 720ms cubic-bezier(0.22, 0.61, 0.36, 1);
+      transition-delay: calc(var(--reveal-i, 0) * 90ms);
+      will-change: opacity;
+    }
+
+    [data-reveal-children].is-visible > * {
+      opacity: 1;
+    }
+
+    /* 无障碍：用户启用了 prefers-reduced-motion 时直接显示，不做过渡 */
+    @media (prefers-reduced-motion: reduce) {
+      [data-reveal],
+      [data-reveal-children] > * {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
+    }
+
     /* ── Header（参考线上 mexc.com） ── */
+    /* ── Site Header — Figma 35:11423 ── */
     .site-header {
       position: sticky;
       top: 0;
       z-index: var(--z-sticky);
       height: 56px;
-      background: var(--color-bg-l0);
+      background: var(--color-bg-page);
       border-bottom: 1px solid var(--color-line-base);
     }
 
     .site-header__bar {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       height: 100%;
-      padding: 0 var(--spacing-5);
-      gap: var(--spacing-6);
-      min-width: 0;
+      padding: 0 16px;
     }
 
     .site-header__left {
       display: flex;
       align-items: center;
-      gap: var(--spacing-6);
+      gap: 16px;
       flex: 1;
       min-width: 0;
+      overflow: hidden;
     }
 
     .site-header__right {
       display: flex;
       align-items: center;
-      gap: var(--spacing-4);
+      gap: 16px;
       flex-shrink: 0;
     }
 
@@ -115,6 +154,7 @@
       align-items: center;
       flex-shrink: 0;
       height: 16px;
+      text-decoration: none;
     }
 
     .site-header__logo-img {
@@ -126,7 +166,7 @@
     .site-header__nav {
       display: flex;
       align-items: center;
-      gap: var(--spacing-5);
+      gap: 16px;
       flex-shrink: 0;
     }
 
@@ -134,8 +174,11 @@
       position: relative;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      font: var(--text-body-m-med);
+      gap: 2px;
+      font-size: 14px;
+      line-height: 22px;
+      font-weight: 500;
+      font-family: var(--font-family-base);
       color: var(--color-text-primary);
       background: none;
       border: none;
@@ -147,7 +190,7 @@
     }
 
     .site-header__nav-item:hover {
-      color: var(--color-brand-content);
+      color: var(--color-text-brand);
     }
 
     .site-header__caret {
@@ -155,169 +198,105 @@
       height: 10px;
       display: block;
       flex-shrink: 0;
-      opacity: 0.75;
     }
 
-    .site-header__nav-tag {
-      display: inline-flex;
-      align-items: center;
-      padding: 1px 4px;
-      margin-left: 2px;
-      background: var(--color-up);
-      color: var(--color-text-white);
-      font-size: 10px;
-      line-height: 14px;
-      font-weight: var(--font-weight-bold);
-      border-radius: 2px;
-      letter-spacing: 0.04em;
-    }
-
-    .site-header__featured {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font: var(--text-body-m-med);
-      color: var(--color-text-primary);
-      white-space: nowrap;
-      text-decoration: none;
-      transition: color var(--transition-fast);
-    }
-
-    .site-header__featured:hover {
-      color: var(--color-brand-content);
-    }
-
-    .site-header__featured-icon {
-      width: 16px;
-      height: 16px;
-      border-radius: var(--radius-full);
-      background: linear-gradient(135deg, #1463ff 0%, #99bcff 100%);
+    /* 2 px 纵向分隔线（导航组之间） */
+    .site-header__nav-divider {
+      width: 2px;
+      height: 12px;
+      background: var(--color-line-base);
       flex-shrink: 0;
     }
 
-    /* 搜索框 */
-    .site-header__search {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--spacing-2);
-      width: 220px;
-      height: 32px;
-      padding: 0 var(--spacing-3);
-      background: var(--color-bg-fill);
-      border: 1px solid transparent;
-      border-radius: var(--radius-md);
-      color: var(--color-text-tertiary);
-      transition: border-color var(--transition-fast);
+    /* HOT 角标：绝对定位于 nav-item 文字上方 */
+    .site-header__hot-badge {
+      position: absolute;
+      top: -11px;
+      left: 0;
+      background: #fe445c;
+      color: #fff;
+      font-size: 5px;
+      line-height: 1.7;
+      font-weight: 700;
+      padding: 0.5px 2.5px;
+      border-radius: 1px;
+      white-space: nowrap;
+      font-family: var(--font-family-base);
+      letter-spacing: 0.06em;
+      pointer-events: none;
+      box-shadow: 0 2.5px 8px rgba(0,0,0,0.06);
     }
 
-    .site-header__search:hover {
-      border-color: var(--color-line-strong);
-    }
-
-    .site-header__search-icon {
+    /* 火焰图标（热门活动入口） */
+    .site-header__fire {
       width: 14px;
       height: 14px;
       flex-shrink: 0;
-      color: var(--color-text-tertiary);
+      display: block;
     }
 
-    .site-header__search-input {
-      flex: 1;
-      min-width: 0;
-      background: transparent;
-      border: none;
-      outline: none;
-      font: var(--text-body-m);
-      color: var(--color-text-primary);
-    }
-
-    .site-header__search-input::placeholder {
-      color: var(--color-text-tertiary);
-    }
-
-    .site-header__search-kbd {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 18px;
-      height: 18px;
-      border-radius: var(--radius-sm);
-      background: var(--color-bg-overlay);
-      color: var(--color-text-secondary);
-      font-size: 12px;
-      flex-shrink: 0;
-    }
-
-    /* CTA 充值按钮 */
-    .site-header__cta {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      height: 32px;
-      padding: 0 var(--spacing-4);
-      background: var(--color-brand-default);
-      color: var(--color-text-white);
-      font: var(--text-body-m-med);
-      border-radius: var(--radius-md);
-      border: none;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background var(--transition-fast);
-      flex-shrink: 0;
-    }
-
-    .site-header__cta:hover {
-      background: var(--color-brand-hover);
-    }
-
-    .site-header__cta:active {
-      background: var(--color-brand-pressed);
-    }
-
+    /* 右侧文字链接（資產 / 合約訂單） */
     .site-header__link {
-      font: var(--text-body-m-med);
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 500;
+      font-family: var(--font-family-base);
       color: var(--color-text-primary);
       white-space: nowrap;
       text-decoration: none;
-      transition: color var(--transition-fast);
       flex-shrink: 0;
+      transition: color var(--transition-fast);
     }
 
     .site-header__link:hover {
-      color: var(--color-brand-content);
+      color: var(--color-text-brand);
     }
 
-    .site-header__icons {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-3);
+    /* 1 px 纵向分隔线（链接与图标之间） */
+    .site-header__divider {
+      width: 1px;
+      height: 22px;
+      background: var(--color-line-base);
+      flex-shrink: 0;
     }
 
+    /* 图标按钮（通用 20 × 20） */
     .site-header__icon-btn {
+      position: relative;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 32px;
-      height: 32px;
+      width: 20px;
+      height: 20px;
       padding: 0;
       border: none;
       background: none;
       cursor: pointer;
-      color: var(--color-text-secondary);
-      border-radius: var(--radius-md);
+      color: var(--color-text-primary);
       flex-shrink: 0;
-      transition: color var(--transition-fast), background var(--transition-fast);
+      transition: color var(--transition-fast);
     }
 
     .site-header__icon-btn:hover {
-      color: var(--color-text-primary);
-      background: var(--color-bg-fill);
+      color: var(--color-text-brand);
     }
 
     .site-header__icon-btn svg {
-      width: 18px;
-      height: 18px;
       display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 消息铃铛 — 26 × 26 */
+    .site-header__icon-btn--notif {
+      width: 26px;
+      height: 26px;
+    }
+
+    /* 下载 — 22 × 22 */
+    .site-header__icon-btn--dl {
+      width: 22px;
+      height: 22px;
     }
 
     .btn {
@@ -458,7 +437,8 @@
       display: flex;
       align-items: center;
       gap: var(--spacing-4);
-      margin-top: var(--spacing-2);
+      /* hint → cta-row 间距 16px：gap(24) - 8px = 16px */
+      margin-top: calc(var(--spacing-4) - var(--spacing-6));
       flex-wrap: wrap;
     }
 
@@ -505,6 +485,8 @@
       font: var(--text-body-s);
       color: var(--color-text-tertiary);
       margin: 0;
+      /* tags → hint 间距 32px：gap(24) + 8px = 32px */
+      margin-top: calc(var(--spacing-8) - var(--spacing-6));
     }
 
     /* 右侧演示卡 */
@@ -513,7 +495,7 @@
       width: 100%;
       max-width: 520px;
       justify-self: center;
-      padding: var(--spacing-5);
+      padding: var(--spacing-8);
       background: var(--color-bg-card);
       border: 1px solid var(--color-line-base);
       border-radius: var(--radius-xl);
@@ -528,25 +510,8 @@
     }
 
     .demo__title {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--spacing-2);
-      font: var(--text-body-m-med);
+      font: var(--text-body-l-med);
       color: var(--color-text-primary);
-    }
-
-    .demo__ai-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 22px;
-      height: 22px;
-      border-radius: var(--radius-full);
-      background: linear-gradient(135deg, #1463ff 0%, #99bcff 100%);
-      color: var(--color-text-white);
-      font-size: 10px;
-      font-weight: var(--font-weight-bold);
-      letter-spacing: 0.04em;
     }
 
     .demo__status {
@@ -724,90 +689,549 @@
       background: var(--color-brand-default);
     }
 
-    /* ── Footer ── */
-    .site-footer {
-      background: var(--color-bg-default);
-      border-top: 1px solid var(--color-border-subtle);
-      padding: var(--spacing-12) 0 var(--spacing-8);
-    }
-
-    .site-footer__grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: var(--spacing-8);
-      margin-bottom: var(--spacing-10);
-    }
-
-    .site-footer__logo {
-      height: 28px;
-    }
-
-    .site-footer__logo .site-header__logo-img {
-      height: 28px;
-    }
-
-    .site-footer__brand-desc {
-      font: var(--text-body-s);
-      color: var(--color-text-tertiary);
-      margin-top: var(--spacing-3);
-      max-width: 280px;
-      line-height: 1.6;
-    }
-
-    .site-footer__col-title {
-      font-size: var(--font-size-sm);
-      font-weight: var(--font-weight-semibold);
-      color: var(--color-text-primary);
-      margin-bottom: var(--spacing-4);
-    }
-
-    .site-footer__links {
+    /* ── Hero Demo Animation Flow ── */
+    .demo__stage {
       display: flex;
       flex-direction: column;
       gap: var(--spacing-3);
+      height: var(--demo-stage-height, 402px);
+      min-height: var(--demo-stage-height, 402px);
+      overflow: hidden;
     }
 
-    .site-footer__links a {
-      font-size: var(--font-size-sm);
+    .demo__msg,
+    .demo__order-modal {
+      flex-shrink: 0;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(8px);
+      transition:
+        opacity 360ms cubic-bezier(0.22, 0.61, 0.36, 1),
+        transform 360ms cubic-bezier(0.22, 0.61, 0.36, 1),
+        visibility 0s linear 360ms;
+      will-change: opacity, transform;
+    }
+
+    .demo__msg.is-visible,
+    .demo__order-modal.is-visible {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      transition:
+        opacity 360ms cubic-bezier(0.22, 0.61, 0.36, 1),
+        transform 360ms cubic-bezier(0.22, 0.61, 0.36, 1),
+        visibility 0s;
+    }
+
+    .demo__msg.is-leaving {
+      opacity: 0;
+      transform: translateY(-4px);
+      transition:
+        opacity 240ms cubic-bezier(0.4, 0, 1, 1),
+        transform 240ms cubic-bezier(0.4, 0, 1, 1);
+    }
+
+    /* 1. 用户输入气泡（含打字光标） */
+    .demo__msg--user {
+      align-self: flex-end;
+      max-width: 86%;
+      min-height: 44px;
+      box-sizing: border-box;
+      padding: var(--spacing-3) var(--spacing-4);
+      background: var(--color-brand-container);
+      border-radius: 12px 12px 4px 12px;
+      font: var(--text-body-m);
+      color: var(--color-text-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .demo__msg-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 16px;
+      background: var(--color-brand-default);
+      vertical-align: text-bottom;
+      animation: demoCursorBlink 1s steps(1, end) infinite;
+    }
+
+    .demo__msg--user:not(.is-typing) .demo__msg-cursor {
+      display: none;
+    }
+
+    .demo__msg-text {
+      font-weight: 500;
+    }
+
+    @keyframes demoCursorBlink {
+      0%, 50% { opacity: 1; }
+      50.01%, 100% { opacity: 0; }
+    }
+
+    /* 2. 深度思考态 —— 图标 + 文字 + 跳动省略号 */
+    .demo__msg--thinking {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      font: var(--text-body-m);
+      color: var(--color-text-primary);
+    }
+
+    .demo__thinking-icon {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .demo__msg--thinking:not(.is-done) .demo__thinking-icon {
+      animation: demoThinkingIconPulse 2.2s ease-in-out infinite;
+    }
+
+    .demo__thinking-body {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .demo__thinking-text {
+      font-weight: 500;
+    }
+
+    .demo__msg--thinking:not(.is-done) .demo__thinking-text {
+      animation: demoThinkingTextFade 2.4s ease-in-out infinite;
+    }
+
+    .demo__thinking-dots {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      margin-left: 2px;
+      height: 16px;
+    }
+
+    .demo__thinking-dots i {
+      width: 4px;
+      height: 4px;
+      border-radius: var(--radius-full);
+      background: var(--color-text-secondary);
+      animation: demoThinkingDotBounce 1.2s ease-in-out infinite;
+    }
+
+    .demo__thinking-dots i:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    .demo__thinking-dots i:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    .demo__msg--thinking.is-done .demo__thinking-dots {
+      display: none;
+    }
+
+    @keyframes demoThinkingIconPulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.08);
+        opacity: 0.88;
+      }
+    }
+
+    @keyframes demoThinkingTextFade {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.55; }
+    }
+
+    @keyframes demoThinkingDotBounce {
+      0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.35;
+      }
+      30% {
+        transform: translateY(-4px);
+        opacity: 1;
+      }
+    }
+
+    /* 3. AI 完成回复 */
+    .demo__msg--ai {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      font: var(--text-body-m);
+      color: var(--color-text-secondary);
+    }
+
+    /* 4. 订单确认弹窗（参考 MEXC 实际下单弹窗） */
+    .demo__order-modal {
+      margin-top: var(--spacing-2);
+      padding: var(--spacing-5) var(--spacing-5) var(--spacing-4);
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-line-base);
+      border-radius: var(--radius-lg);
+    }
+
+    .demo__order-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-4);
+    }
+
+    .demo__order-modal-title {
+      font-size: 18px;
+      line-height: 26px;
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+    }
+
+    .demo__order-modal-close {
+      width: 24px;
+      height: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
       color: var(--color-text-tertiary);
+      cursor: pointer;
+      border-radius: var(--radius-full);
+      transition: background var(--transition-fast);
+    }
+
+    .demo__order-modal-close:hover {
+      background: var(--color-bg-fill);
+      color: var(--color-text-secondary);
+    }
+
+    .demo__order-modal-close svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .demo__order-modal-pair {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      margin-bottom: var(--spacing-4);
+    }
+
+    .demo__order-pair-name {
+      font-size: 15px;
+      line-height: 22px;
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+    }
+
+    .demo__order-pair-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px var(--spacing-2);
+      background: var(--color-up-bg);
+      color: var(--color-up);
+      font-size: 11px;
+      line-height: 16px;
+      font-weight: var(--font-weight-medium);
+      border-radius: var(--radius-sm);
+    }
+
+    .demo__order-modal-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: var(--spacing-4);
+    }
+
+    .demo__order-modal-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font: var(--text-body-m);
+    }
+
+    .demo__order-modal-label {
+      color: var(--color-text-secondary);
+    }
+
+    .demo__order-modal-value {
+      color: var(--color-text-primary);
+      font-weight: var(--font-weight-medium);
+      font-family: var(--font-family-sf);
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+    }
+
+    .demo__order-modal-checkbox {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      margin-bottom: var(--spacing-4);
+      font: var(--text-body-s);
+      color: var(--color-text-secondary);
+    }
+
+    .demo__checkbox-box {
+      width: 14px;
+      height: 14px;
+      border: 1.5px solid var(--color-line-strong);
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .demo__order-modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: var(--spacing-3);
+    }
+
+    .demo__order-modal-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 44px;
+      border-radius: var(--radius-full);
+      font-size: 15px;
+      font-weight: var(--font-weight-medium);
+      border: none;
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+
+    .demo__order-modal-btn--secondary {
+      background: var(--color-bg-fill);
+      color: var(--color-text-primary);
+    }
+
+    .demo__order-modal-btn--secondary:hover {
+      background: var(--color-bg-fill-hover);
+    }
+
+    .demo__order-modal-btn--primary {
+      background: var(--color-up);
+      color: var(--color-text-white);
+    }
+
+    .demo__order-modal-btn--primary:hover {
+      filter: brightness(0.95);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .demo__msg,
+      .demo__order-modal {
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        transition: none;
+      }
+      .demo__msg-cursor {
+        animation: none;
+      }
+      .demo__thinking-icon,
+      .demo__thinking-text,
+      .demo__thinking-dots i {
+        animation: none;
+      }
+    }
+
+    /* ── Footer ── */
+    /* ── Site Footer — Figma 68:4981 ── */
+    .site-footer {
+      background: var(--color-bg-page);
+      border-top: 1px solid var(--color-line-base);
+      padding: 64px 0 0;
+    }
+
+    .site-footer__main {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      padding-bottom: 40px;
+    }
+
+    /* Community + Download App (leftmost col) */
+    .site-footer__comm-col {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      flex: 1 0 0;
+      min-width: 0;
+    }
+
+    .site-footer__comm-sect,
+    .site-footer__dl-sect {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .site-footer__col-title {
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin: 0;
+      font-family: var(--font-family-base);
+    }
+
+    /* Social icons */
+    .site-footer__social-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 6px 0;
+    }
+
+    .site-footer__social-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .site-footer__sicon {
+      display: block;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 0.417px solid var(--color-line-base);
+      line-height: 0;
+    }
+
+    .site-footer__sicon svg {
+      display: block;
+      width: 20px;
+      height: 20px;
+    }
+
+    /* QR code */
+    .site-footer__qr-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .site-footer__qr {
+      width: 120px;
+      height: 120px;
+      border-radius: 11px;
+      overflow: hidden;
+      background: var(--color-bg-fill);
+      line-height: 0;
+    }
+
+    .site-footer__qr svg {
+      display: block;
+      width: 120px;
+      height: 120px;
+    }
+
+    .site-footer__qr-caption {
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      font-family: var(--font-family-base);
+    }
+
+    /* Nav columns */
+    .site-footer__nav-col {
+      flex: 1 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    /* Resources column uses 18px title per Figma */
+    .site-footer__nav-col--resources .site-footer__col-title {
+      font-size: 18px;
+      line-height: 26px;
+    }
+
+    .site-footer__links {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .site-footer__links li a,
+    .site-footer__links li > button {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      width: 100%;
+      padding: 8px 0;
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 500;
+      font-family: var(--font-family-base);
+      color: var(--color-text-primary);
+      text-decoration: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-align: left;
       transition: color var(--transition-fast);
     }
 
-    .site-footer__links a:hover {
-      color: var(--color-brand-default);
+    .site-footer__links li a:hover,
+    .site-footer__links li > button:hover {
+      color: var(--color-text-brand);
     }
 
+    .site-footer__links li.sf-secondary a {
+      color: var(--color-text-secondary);
+    }
+
+    .site-footer__caret {
+      width: 10px;
+      height: 10px;
+      flex-shrink: 0;
+    }
+
+    /* Bottom copyright bar */
     .site-footer__bottom {
+      padding: 16px 0;
+      border-top: 1px solid var(--color-line-base);
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: var(--spacing-4);
-      padding-top: var(--spacing-8);
-      border-top: 1px solid var(--color-border-subtle);
-      font-size: var(--font-size-xs);
-      color: var(--color-text-quaternary);
-      text-align: center;
+      justify-content: space-between;
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      font-family: var(--font-family-base);
     }
 
-    @media (min-width: 768px) {
-      .site-footer__grid {
-        grid-template-columns: 2fr 1fr 1fr 1fr;
-      }
+    @media (max-width: 1023px) {
+      .site-footer__main { flex-wrap: wrap; }
+      .site-footer__comm-col { flex: 1 1 100%; }
+      .site-footer__nav-col { flex: 1 1 calc(50% - 12px); min-width: calc(50% - 12px); }
+    }
 
-      .site-footer__bottom {
-        flex-direction: row;
-        justify-content: space-between;
-        text-align: left;
-      }
+    @media (max-width: 639px) {
+      .site-footer { padding: 40px 0 0; }
+      .site-footer__nav-col { flex: 1 1 100%; }
     }
 
     /* ── Stats（hero 下方数据条，无卡片背景） ── */
     .stats {
       background: var(--color-bg-table);
-      padding: var(--spacing-12) 0;
+      padding: 10px 0 var(--spacing-12);
       display: flex;
       align-items: center;
       min-height: 180px;
+      width: 100%;
     }
 
     .stats__card {
@@ -830,13 +1254,15 @@
       gap: var(--spacing-2);
       text-align: center;
       position: relative;
+      width: 250px;
+      padding: 0 var(--spacing-6);
     }
 
     @media (min-width: 768px) {
       .stats__item + .stats__item::before {
         content: "";
         position: absolute;
-        left: 0;
+        left: calc(var(--spacing-6) * -0.5);
         top: 50%;
         transform: translateY(-50%);
         width: 1px;
@@ -848,7 +1274,7 @@
     .stats__value {
       font-family: var(--font-family-base);
       font-weight: 700;
-      font-size: 36px;
+      font-size: 40px;
       line-height: 1.1;
       letter-spacing: -0.02em;
       color: var(--color-text-primary);
@@ -856,10 +1282,8 @@
       font-feature-settings: "tnum";
     }
 
-    @media (min-width: 1024px) {
-      .stats__value {
-        font-size: 44px;
-      }
+    .stats__value--up {
+      color: var(--color-up);
     }
 
     .stats__label {
@@ -867,11 +1291,1681 @@
       color: var(--color-text-secondary);
     }
 
+    /* ── Showcase Cards (AI 策略 / AI 跟单社区) ── */
+    .showcase {
+      padding: 120px 0;
+      background: var(--color-bg-page);
+    }
+
+    .showcase__header {
+      text-align: center;
+      margin-bottom: var(--spacing-12);
+    }
+
+    .showcase__title {
+      font-size: 46px;
+      line-height: 51px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-3);
+    }
+
+    .showcase__subtitle {
+      font: var(--text-body-16);
+      font-weight: 400;
+      color: var(--color-text-secondary);
+    }
+
+    .showcase__grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--spacing-6);
+    }
+
+    @media (min-width: 1024px) {
+      .showcase__grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .showcase-card {
+      position: relative;
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-line-base);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      padding: 40px 40px 0;
+      height: 606px;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow var(--transition-normal), transform var(--transition-normal), border-color var(--transition-normal);
+      isolation: isolate;
+    }
+
+    .showcase-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--color-line-strong);
+      transform: translateY(-2px);
+    }
+
+    .showcase-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .showcase-card--blue::before {
+      background:
+        radial-gradient(80% 60% at 20% 0%, rgba(0, 87, 255, 0.10) 0%, transparent 65%),
+        linear-gradient(180deg, rgba(0, 87, 255, 0.04) 0%, rgba(255, 255, 255, 0) 55%);
+    }
+
+    .showcase-card--warm::before {
+      background:
+        radial-gradient(80% 60% at 80% 0%, rgba(255, 165, 100, 0.14) 0%, transparent 65%),
+        linear-gradient(180deg, rgba(255, 200, 150, 0.08) 0%, rgba(255, 255, 255, 0) 55%);
+    }
+
+    .showcase-card__head {
+      margin-bottom: var(--spacing-6);
+      max-width: 90%;
+    }
+
+    .showcase-card__title {
+      font-size: 28px;
+      line-height: 36px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-2);
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .showcase-card__title-icon {
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+      object-fit: contain;
+    }
+
+    .showcase-card__subtitle {
+      font: var(--text-body-14);
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+
+    .showcase-card__preview {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    /* 暖色卡: 让 follow-modal 拉伸到预览区底部, 视觉上与外卡片底边无缝衔接 */
+    .showcase-card--warm .follow-modal {
+      align-self: stretch;
+    }
+
+    .showcase-card--warm .follow-modal__footer {
+      margin-top: auto;
+    }
+
+    /* === Small Showcase Cards (4 per row) === */
+    .showcase__grid--small {
+      margin-top: var(--spacing-6);
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 640px) {
+      .showcase__grid--small {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .showcase__grid--small {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .showcase-card--small {
+      padding: var(--spacing-6);
+      height: auto;
+      min-height: auto;
+      gap: var(--spacing-4);
+      overflow: visible;
+    }
+
+    .showcase-card--small:hover {
+      transform: none;
+    }
+
+    .showcase-card--small::before {
+      display: none;
+    }
+
+    .showcase-card--small .showcase-card__icon-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-lg);
+      background: var(--color-brand-container);
+      color: var(--color-text-brand);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .showcase-card--small .showcase-card__icon {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      color: currentColor;
+      opacity: 1;
+    }
+
+    .showcase-card--small .showcase-card__body {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-1);
+    }
+
+    .showcase-card--small .showcase-card__title {
+      font: var(--text-title-16);
+      font-weight: 500;
+      color: var(--color-text-primary);
+      margin-bottom: 0;
+      letter-spacing: 0;
+      display: block;
+      gap: 0;
+    }
+
+    .showcase-card--small .showcase-card__subtitle {
+      font: var(--text-body-14);
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Text Button (Figma: Text Button / Suffix icon / md-14) */
+    .text-btn {
+      display: none;
+    }
+    .text-btn--enabled {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-md);
+      font-family: var(--font-family-base);
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 400;
+      color: var(--color-text-brand);
+      cursor: pointer;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: color var(--transition-fast);
+    }
+
+    .text-btn:hover {
+      color: var(--color-brand-hover);
+    }
+
+    .text-btn:active {
+      color: var(--color-brand-pressed);
+    }
+
+    .text-btn__icon {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      display: block;
+    }
+
+    .showcase-card--small .text-btn,
+    .showcase-card--feature .text-btn {
+      margin-top: var(--spacing-1);
+      align-self: flex-start;
+    }
+
+    /* === Showcase 小分组标题 === */
+    .showcase__subgroup-title {
+      margin-top: var(--spacing-20);
+      margin-bottom: var(--spacing-5);
+      font-size: 18px;
+      line-height: 26px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+      letter-spacing: 0;
+    }
+
+    /* === Feature Showcase Cards (2 per row, with mock preview) === */
+    .showcase__grid--feature {
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 768px) {
+      .showcase__grid--feature {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .showcase-card--feature {
+      padding: 0;
+      height: auto;
+      min-height: 340px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      gap: 0;
+    }
+
+    .showcase-card--feature:hover {
+      transform: translateY(-2px);
+    }
+
+    .showcase-card--feature .showcase-card__preview-feature {
+      flex: 1;
+      position: relative;
+      min-height: 300px;
+      background: var(--color-bg-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-5) var(--spacing-6);
+      overflow: hidden;
+    }
+
+    .showcase-card--feature .showcase-card__preview-feature::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url('./assets/showcase/feature-bg.svg');
+      background-repeat: repeat;
+      background-position: 0 0;
+      background-size: 24px 24px;
+      mask-image:
+        linear-gradient(to right,  transparent 0%, black 20%, black 80%, transparent 100%),
+        linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
+      mask-composite: intersect;
+      -webkit-mask-image:
+        linear-gradient(to right,  transparent 0%, black 20%, black 80%, transparent 100%),
+        linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
+      -webkit-mask-composite: source-in;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .showcase-card--feature .showcase-card__body {
+      padding: var(--spacing-6);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-1);
+    }
+
+    .showcase-card--feature .showcase-card__title {
+      font: var(--text-title-16);
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin-bottom: 0;
+      letter-spacing: 0;
+      display: block;
+      gap: 0;
+    }
+
+    .showcase-card--feature .showcase-card__subtitle {
+      font: var(--text-body-16);
+      font-weight: 400;
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* MEXC-AI: chat input pill mockup */
+    .chat-input-mock {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 380px;
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-line-base);
+      border-radius: var(--radius-full);
+      box-shadow: var(--shadow-md);
+      padding: 8px 8px 8px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chat-input-mock__text {
+      position: relative;
+      z-index: 0;
+      flex: 1;
+      font: var(--text-body-14);
+      font-weight: 500;
+      color: var(--color-text-primary);
+      white-space: nowrap;
+      overflow: visible;
+      display: inline-flex;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .chat-input-mock__glow {
+      position: absolute;
+      left: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 75%;
+      height: 32px;
+      background: radial-gradient(60% 80% at 30% 50%, var(--color-brand-tint) 0%, transparent 70%);
+      filter: blur(10px);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .chat-input-mock__caret {
+      display: inline-block;
+      width: 1.5px;
+      height: 14px;
+      margin-left: 2px;
+      background: var(--color-text-primary);
+      animation: caret-blink 1.1s steps(2) infinite;
+    }
+
+    @keyframes caret-blink {
+      to { background-color: transparent; }
+    }
+
+    .chat-input-mock__icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      background: transparent;
+      color: var(--color-text-tertiary);
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      cursor: default;
+      padding: 0;
+    }
+
+    .chat-input-mock__icon-btn svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .chat-input-mock__submit {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-full);
+      background: var(--color-text-primary);
+      color: var(--color-text-white);
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      cursor: default;
+      padding: 0;
+    }
+
+    .chat-input-mock__submit svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* ── 底部固定 AI 快捷聊天框（参考 Gate AI 浮层布局） ── */
+    .ai-float-bar {
+      position: fixed;
+      bottom: max(var(--spacing-6), env(safe-area-inset-bottom, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: var(--z-overlay);
+      width: min(calc(100% - var(--spacing-6) * 2), 516px);
+      padding: 0 var(--spacing-6);
+      box-sizing: border-box;
+      pointer-events: none;
+    }
+
+    .ai-float-bar__form {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xsm);
+      padding: var(--spacing-2) var(--spacing-6);
+      background: color-mix(in srgb, var(--color-bg-card) 88%, transparent);
+      border: 1px solid var(--color-line-base);
+      border-radius: var(--radius-full);
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+    }
+
+    .ai-float-bar__form:focus-within {
+      border-color: var(--color-brand-default);
+      box-shadow: var(--shadow-brand);
+    }
+
+    .ai-float-bar__icon {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ai-float-bar__icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .ai-float-bar__input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      outline: none;
+      background: transparent;
+      font: var(--text-body-14-med);
+      color: var(--color-text-primary);
+      padding: var(--spacing-2) 0;
+    }
+
+    .ai-float-bar__input::placeholder {
+      color: var(--color-text-tertiary);
+      font-weight: var(--font-weight-regular);
+    }
+
+    .ai-float-bar__submit {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      width: 60px;
+      height: var(--spacing-8);
+      min-width: 60px;
+      padding: 0 var(--spacing-3);
+      border: 1px solid var(--color-line-base);
+      border-radius: var(--radius-md);
+      background: var(--color-brand-container);
+      color: var(--color-brand-default);
+      cursor: pointer;
+      transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast);
+    }
+
+    .ai-float-bar__submit:hover {
+      background: var(--color-bg-fill-hover);
+      border-color: var(--color-brand-default);
+    }
+
+    .ai-float-bar__submit:active {
+      background: var(--color-brand-container);
+    }
+
+    .ai-float-bar__submit svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .ai-float-bar__submit-hint {
+      font: var(--text-body-12);
+      color: var(--color-text-tertiary);
+      line-height: 1;
+    }
+
+    @media (max-width: 767px) {
+      .ai-float-bar {
+        width: calc(100% - var(--spacing-4) * 2);
+        padding: 0 var(--spacing-4);
+        bottom: max(var(--spacing-4), env(safe-area-inset-bottom, 0px));
+      }
+
+      .ai-float-bar__form {
+        gap: var(--spacing-xsm);
+        padding: 6px 6px 6px var(--spacing-3);
+      }
+
+      .ai-float-bar__icon {
+        width: 28px;
+        height: 28px;
+      }
+
+      .ai-float-bar__input {
+        font-size: var(--font-size-14);
+      }
+
+      .ai-float-bar__submit {
+        height: 36px;
+        min-width: 36px;
+        padding: 0 var(--spacing-2);
+      }
+
+      .ai-float-bar__submit-hint {
+        display: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ai-float-bar__form {
+        transition: none;
+      }
+    }
+
+    /* === MEXC-AI: 自然语言对话演示 === */
+    .ai-chat-demo {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 420px;
+      height: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: var(--spacing-3);
+    }
+
+    .ai-chat-demo__stream {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 0 4px;
+      overflow: hidden;
+      mask-image: linear-gradient(180deg, transparent 0%, black 22%, black 100%);
+      -webkit-mask-image: linear-gradient(180deg, transparent 0%, black 22%, black 100%);
+    }
+
+    .ai-chat-demo__msg {
+      display: none;
+      will-change: opacity, transform;
+    }
+
+    .ai-chat-demo__msg.is-visible {
+      display: flex;
+      animation: ai-msg-enter 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .ai-chat-demo__msg--user.is-visible {
+      display: inline-block;
+    }
+
+    .ai-chat-demo__msg.is-leaving {
+      display: flex;
+      animation: ai-msg-leave 0.28s ease both;
+    }
+
+    @keyframes ai-msg-enter {
+      from { opacity: 0; transform: translate3d(0, 10px, 0); }
+      to   { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+
+    @keyframes ai-msg-leave {
+      from { opacity: 1; transform: translate3d(0, 0, 0); }
+      to   { opacity: 0; transform: translate3d(0, -4px, 0); }
+    }
+
+    /* 用户气泡（右侧，灰底） */
+    .ai-chat-demo__msg--user {
+      align-self: flex-end;
+      background: var(--color-bg-fill);
+      color: var(--color-text-primary);
+      font: var(--text-body-14-med);
+      padding: 10px 16px;
+      border-radius: var(--radius-lg);
+      border-top-right-radius: 6px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
+    /* AI 思考中 + AI 回复共用左侧布局 */
+    .ai-chat-demo__msg--thinking,
+    .ai-chat-demo__msg--reply {
+      align-self: flex-start;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      max-width: 100%;
+    }
+
+    /* 回复内容左缩进，与"深度思考中"文字位置左对齐
+       42px = 头像宽(32) + flex gap(10) */
+    .ai-chat-demo__msg--reply {
+      padding-left: 42px;
+    }
+
+    .ai-chat-demo__avatar {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-bg-card);
+      box-shadow:
+        0 0 0 2px var(--color-bg-card),
+        0 4px 12px rgba(0, 87, 255, 0.18);
+    }
+
+    .ai-chat-demo__avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .ai-chat-demo__thinking-body {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding-top: 5px;
+      font: var(--text-body-14-med);
+      color: var(--color-text-primary);
+    }
+
+    .ai-chat-demo__dots {
+      display: inline-flex;
+      gap: 3px;
+      margin-left: 4px;
+    }
+
+    .ai-chat-demo__dots i {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--color-text-secondary);
+    }
+
+    .ai-chat-demo__reply-body {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding-top: 2px;
+    }
+
+    .ai-chat-demo__reply-line {
+      font: var(--text-body-14);
+      color: var(--color-text-primary);
+      line-height: 1.55;
+      opacity: 0;
+      transform: translate3d(0, 6px, 0);
+      transition:
+        opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+
+    .ai-chat-demo__reply-line.is-visible {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+
+    .ai-chat-demo__reply-line--strong { font-weight: 700; margin-top: 2px; }
+    .ai-chat-demo__reply-line--indent { padding-left: 16px; color: var(--color-text-secondary); }
+
+    /* MEXC-AI 输入框（演示态，placeholder 灰字） */
+    .chat-input-mock--demo .chat-input-mock__placeholder {
+      color: var(--color-text-tertiary);
+      font: var(--text-body-14);
+      font-weight: 400;
+    }
+
+    .chat-input-mock--demo .chat-input-mock__submit {
+      background: var(--color-bg-fill);
+      color: var(--color-text-tertiary);
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .ai-chat-demo[data-state="reply"] .chat-input-mock--demo .chat-input-mock__submit,
+    .ai-chat-demo[data-state="thinking"] .chat-input-mock--demo .chat-input-mock__submit {
+      background: var(--color-text-primary);
+      color: var(--color-text-white);
+    }
+
+    /* === AI 快讯：news flash mockup（与左侧 ai-chat-demo 同尺寸 420 × 280） === */
+    .news-flash-mock {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 420px;
+      height: 280px;
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-line-base);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 主 tab 行（发现 / 指标 / 主动交易 / 资金流动） */
+    .news-flash-mock__tabs {
+      display: flex;
+      gap: 14px;
+      padding: 14px 16px 0;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--color-line-base);
+    }
+
+    .news-flash-mock__tab {
+      position: relative;
+      padding-bottom: 8px;
+      font: var(--text-body-14);
+      font-weight: 500;
+      color: var(--color-text-tertiary);
+      white-space: nowrap;
+    }
+
+    .news-flash-mock__tab.is-active {
+      color: var(--color-text-primary);
+      font-weight: 700;
+    }
+
+    .news-flash-mock__tab.is-active::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -1px;
+      width: 100%;
+      height: 2px;
+      background: var(--color-text-primary);
+      border-radius: 2px 2px 0 0;
+    }
+
+    /* 子 tab 行（观点 / 快讯，药丸式） */
+    .news-flash-mock__subtabs {
+      display: flex;
+      gap: 4px;
+      padding: 10px 12px 6px;
+      flex-shrink: 0;
+    }
+
+    .news-flash-mock__subtab {
+      font: var(--text-body-12);
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+    }
+
+    .news-flash-mock__subtab.is-active {
+      background: var(--color-bg-fill);
+      color: var(--color-text-primary);
+      font-weight: 600;
+    }
+
+    /* 日期分组 */
+    .news-flash-mock__date {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px 8px;
+      font: var(--text-body-12);
+      color: var(--color-text-primary);
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    .news-flash-mock__date svg {
+      width: 10px;
+      height: 10px;
+      color: var(--color-text-tertiary);
+    }
+
+    /* 快讯流容器（底部 mask 渐隐） */
+    .news-flash-mock__list {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      list-style: none;
+      margin: 0;
+      padding: 0 16px 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow: hidden;
+      mask-image: linear-gradient(180deg, black 0%, black 65%, transparent 100%);
+      -webkit-mask-image: linear-gradient(180deg, black 0%, black 65%, transparent 100%);
+    }
+
+    /* 单条快讯 */
+    .news-flash-mock__item {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex-shrink: 0;
+      padding-left: 12px;
+      will-change: transform, opacity, max-height, margin-top;
+    }
+
+    /* 左侧灰色圆点（与时间戳同行） */
+    .news-flash-mock__item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 6px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--color-text-tertiary);
+    }
+
+    .news-flash-mock__item.is-entering {
+      animation: news-flash-enter 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes news-flash-enter {
+      0%   { opacity: 0; transform: translate3d(0, -6px, 0); max-height: 0; margin-bottom: -12px; }
+      40%  { opacity: 0.4; max-height: 120px; margin-bottom: 0; }
+      100% { opacity: 1; transform: translate3d(0, 0, 0); max-height: 120px; margin-bottom: 0; }
+    }
+
+    .news-flash-mock__item-time {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'San Francisco Text', 'Helvetica Neue', sans-serif;
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: 'tnum';
+    }
+
+    .news-flash-mock__item-title {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font: var(--text-body-14);
+      color: var(--color-text-primary);
+      line-height: 1.45;
+    }
+
+    .news-flash-mock__item-title-text {
+      flex: 1;
+      min-width: 0;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .news-flash-mock__item-link {
+      flex-shrink: 0;
+      color: var(--color-text-secondary);
+      width: 14px;
+      height: 14px;
+      margin-top: 3px;
+    }
+
+    .news-flash-mock__item-badge {
+      display: inline-flex;
+      align-items: center;
+      align-self: flex-start;
+      padding: 1px 6px;
+      border-radius: var(--radius-sm);
+      font: var(--text-body-12);
+      font-weight: 500;
+      font-size: 11px;
+      line-height: 16px;
+    }
+
+    .news-flash-mock__item-badge--up {
+      background: rgba(10, 168, 105, 0.12);
+      color: var(--color-up);
+    }
+
+    .news-flash-mock__item-badge--down {
+      background: rgba(255, 71, 97, 0.12);
+      color: var(--color-down);
+    }
+
+    /* === Strategy Preview === */
+    .strategy-preview {
+      width: 100%;
+      max-width: 360px;
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-line-base);
+      border-top-left-radius: var(--radius-xl);
+      border-top-right-radius: var(--radius-xl);
+      border-bottom: none;
+      padding: 0 16px 16px 16px;
+      box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Figma: Frame 2147203513 — padding 24/16/16/16, items-center, height 60px */
+    .strategy-preview__brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 24px 0 16px 0;
+      font-family: var(--font-family-base);
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 20px;
+      letter-spacing: 0;
+      color: var(--color-text-primary);
+    }
+
+    .strategy-preview__brand-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .strategy-preview__brand-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    /* Figma: Display Chips Group — height 32px, gap 8px */
+    .strategy-preview__tabs {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    /* brand 与 tabs 紧贴，抵消父级 gap:16px */
+    .strategy-preview__brand + .strategy-preview__tabs {
+      margin-top: -16px;
+    }
+
+    .strategy-tab {
+      height: 32px;
+      padding: 4px 12px;
+      border-radius: var(--radius-md);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-family-base);
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 20px;
+      color: var(--color-text-secondary);
+      opacity: 0.8;
+      cursor: pointer;
+      transition: background var(--transition-fast), color var(--transition-fast), opacity var(--transition-fast);
+    }
+
+    .strategy-tab--active {
+      background: var(--color-bg-fill);
+      color: var(--color-text-primary);
+      opacity: 1;
+    }
+
+    /* Figma: Frame 2147203788 — strategy card mini */
+    .strategy-card-mini {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-line-strong);
+      border-radius: var(--radius-xl);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .strategy-card-mini__title {
+      font-family: var(--font-family-base);
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 24px;
+      color: var(--color-text-primary);
+    }
+
+    .strategy-card-mini__rows {
+      width: 100%;
+      background: var(--color-bg-fill);
+      border-radius: var(--radius-lg);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .strategy-card-mini__row {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .strategy-card-mini__label {
+      font-family: var(--font-family-base);
+      font-weight: 400;
+      color: var(--color-text-secondary);
+    }
+
+    .strategy-card-mini__value {
+      font-family: var(--font-family-base);
+      font-weight: 500;
+      color: var(--color-text-primary);
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+    }
+
+    .strategy-card-mini__value--up {
+      color: var(--color-up);
+    }
+
+    .strategy-card-mini__desc {
+      width: 100%;
+      font-family: var(--font-family-base);
+      font-weight: 400;
+      font-size: 12px;
+      line-height: 18px;
+      color: var(--color-text-primary);
+      word-break: break-word;
+    }
+
+    .strategy-card-mini__desc-label {
+      color: var(--color-text-secondary);
+    }
+
+    /* Figma: Standard Button — 默认 fill, hover 加深 */
+    .strategy-card-mini__btn {
+      width: 100%;
+      background: var(--color-bg-fill);
+      border: none;
+      border-radius: var(--radius-full);
+      padding: 6px 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-family: var(--font-family-base);
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--color-text-primary);
+      text-align: center;
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+
+    .strategy-card-mini__btn:hover {
+      background: var(--color-bg-fill-hover);
+    }
+
+    /* === Trader Preview === */
+    .trader-preview {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding-bottom: 24px;
+    }
+
+    .trader-preview__title {
+      font: var(--text-title-16);
+      color: var(--color-text-primary);
+    }
+
+    .trader-preview__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .trader-card-mini {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-line-base);
+      border-radius: var(--radius-lg);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: var(--shadow-sm);
+      min-width: 0;
+    }
+
+    .trader-card-mini__head {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .trader-card-mini__avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font: var(--text-body-12);
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .trader-card-mini__name-wrap {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .trader-card-mini__name {
+      font-size: 13px;
+      line-height: 16px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .trader-card-mini__sub {
+      font-size: 10px;
+      line-height: 14px;
+      color: var(--color-text-tertiary);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .trader-tag {
+      display: inline-flex;
+      padding: 1px 5px;
+      background: var(--color-bg-fill);
+      border-radius: var(--radius-sm);
+      font-size: 9px;
+      line-height: 13px;
+      color: var(--color-text-secondary);
+    }
+
+    .trader-card-mini__star {
+      color: var(--color-text-tertiary);
+      font-size: 14px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .trader-card-mini__return {
+      font-size: 18px;
+      line-height: 22px;
+      font-weight: 700;
+      color: var(--color-up);
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+    }
+
+    .trader-card-mini__return-label {
+      font-size: 11px;
+      line-height: 14px;
+      color: var(--color-text-tertiary);
+      margin-top: -2px;
+    }
+
+    .trader-card-mini__chart {
+      height: 36px;
+      margin: 2px 0;
+    }
+
+    .trader-card-mini__stats {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .trader-card-mini__stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      line-height: 14px;
+      color: var(--color-text-secondary);
+    }
+
+    .trader-card-mini__stat-value {
+      color: var(--color-text-primary);
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+    }
+
+    .trader-card-mini__stat-value--up {
+      color: var(--color-up);
+    }
+
+    .trader-card-mini__btn {
+      background: var(--color-brand-default);
+      color: var(--color-text-white);
+      border: none;
+      border-radius: var(--radius-full);
+      padding: 6px;
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background var(--transition-fast);
+      margin-top: 4px;
+    }
+
+    .trader-card-mini__btn:hover {
+      background: var(--color-brand-hover);
+    }
+
+    /* === Figma: 快捷跟单 Modal (node 5765:135548) === */
+    .follow-modal {
+      width: 100%;
+      max-width: 360px;
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-line-base);
+      border-top-left-radius: var(--radius-xl);
+      border-top-right-radius: var(--radius-xl);
+      border-bottom: none;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    .follow-modal__header {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 16px 24px;
+    }
+
+    .follow-modal__title {
+      flex: 1;
+      min-width: 0;
+      font: var(--text-title-20);
+      color: var(--color-text-primary);
+    }
+
+    .follow-modal__close {
+      background: none;
+      border: none;
+      padding: 0;
+      width: 14px;
+      height: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .follow-modal__close svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .follow-modal__divider {
+      height: 1px;
+      background: var(--color-line-base);
+      width: 100%;
+    }
+
+    .follow-modal__content {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      padding: 24px 24px 8px;
+    }
+
+    .follow-modal__trader {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .follow-modal__avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #BDE3FF, #5DA8FF);
+      color: #103e7a;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font: var(--text-body-14-med);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .follow-modal__trader-name {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .follow-modal__trader-name-text {
+      font: var(--text-title-16);
+      color: var(--color-text-primary);
+    }
+
+    .follow-modal__chevron {
+      width: 16px;
+      height: 16px;
+      color: var(--color-text-secondary);
+      flex-shrink: 0;
+      display: block;
+    }
+
+    .follow-modal__field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .follow-modal__field-label {
+      font: var(--text-body-16);
+      color: var(--color-text-primary);
+    }
+
+    .follow-modal__balance {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .follow-modal__balance-label-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      color: var(--color-text-secondary);
+    }
+
+    .follow-modal__icon-info {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      display: block;
+    }
+
+    .follow-modal__balance-label {
+      font: var(--text-body-14-med);
+      color: var(--color-text-secondary);
+    }
+
+    .follow-modal__balance-value {
+      font: var(--text-body-14-med);
+      color: var(--color-text-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .follow-modal__icon-swap {
+      width: 14px;
+      height: 14px;
+      color: var(--color-text-secondary);
+      flex-shrink: 0;
+      display: block;
+    }
+
+    .follow-modal__input {
+      height: 40px;
+      background: var(--color-bg-fill);
+      border-radius: var(--radius-md);
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .follow-modal__input-placeholder {
+      flex: 1;
+      min-width: 0;
+      font: var(--text-body-14-med);
+      color: var(--color-text-tertiary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .follow-modal__input-unit {
+      font: var(--text-body-14-med);
+      color: var(--color-text-primary);
+      flex-shrink: 0;
+    }
+
+    .follow-modal__input-all {
+      font: var(--text-body-14-med);
+      color: var(--color-text-brand);
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* Figma: Slider 滑杆 */
+    .follow-modal__slider {
+      position: relative;
+      width: 100%;
+      padding: 7px 0 0;
+      margin-top: 4px;
+    }
+
+    .follow-modal__slider-track {
+      position: relative;
+      height: 2px;
+      background: var(--color-line-strong);
+      border-radius: 2px;
+    }
+
+    .follow-modal__slider-mark {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-bg-table);
+      border: 1px solid var(--color-line-strong);
+      box-sizing: border-box;
+    }
+
+    .follow-modal__slider-mark--active {
+      width: 14px;
+      height: 14px;
+      background: var(--color-bg-card);
+      border: 2px solid var(--color-brand-default);
+    }
+
+    .follow-modal__slider-labels {
+      position: relative;
+      height: 20px;
+      margin-top: 8px;
+    }
+
+    .follow-modal__slider-label {
+      position: absolute;
+      top: 0;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 20px;
+      color: var(--color-text-tertiary);
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .follow-modal__slider-label--mid {
+      transform: translateX(-50%);
+    }
+
+    .follow-modal__mode {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .follow-modal__mode-label {
+      font: var(--text-body-14-med);
+      color: var(--color-text-primary);
+      opacity: 0.8;
+    }
+
+    .follow-modal__mode-value-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .follow-modal__mode-value {
+      font: var(--text-body-14-med);
+      color: var(--color-text-primary);
+    }
+
+    .follow-modal__icon-info-sm {
+      width: 12px;
+      height: 12px;
+      color: var(--color-text-secondary);
+      flex-shrink: 0;
+      display: block;
+    }
+
+    .follow-modal__checkbox {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .follow-modal__checkbox-box {
+      width: 16px;
+      height: 16px;
+      border-radius: var(--radius-sm);
+      background: var(--color-text-primary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--color-text-white);
+      margin-top: 2px;
+    }
+
+    .follow-modal__checkbox-box svg {
+      width: 10px;
+      height: 10px;
+      display: block;
+    }
+
+    .follow-modal__checkbox-text {
+      font: var(--text-body-14);
+      color: var(--color-text-primary);
+      word-break: break-word;
+    }
+
+    .follow-modal__footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 16px 24px 24px;
+    }
+
+    .follow-modal__btn {
+      flex: 1;
+      height: 40px;
+      border: none;
+      border-radius: 20px;
+      background: var(--color-bg-fill-hover);
+      color: var(--color-text-tertiary);
+      font: var(--text-body-14-med);
+      padding: 5px 16px;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 768px) {
+      .showcase {
+        padding: 64px 0;
+      }
+      .showcase__title {
+        font-size: 32px;
+        line-height: 40px;
+      }
+      .showcase-card {
+        padding: 28px 24px 0;
+      }
+      .showcase-card--small {
+        padding: var(--spacing-5);
+      }
+      .showcase-card--feature {
+        min-height: 280px;
+      }
+      .showcase-card--feature .showcase-card__preview-feature {
+        min-height: 180px;
+        padding: var(--spacing-6) var(--spacing-4);
+      }
+      .showcase-card--feature .showcase-card__body {
+        padding: 0 var(--spacing-5) var(--spacing-5);
+      }
+      .showcase-card__title {
+        font-size: 22px;
+        line-height: 30px;
+      }
+      .showcase-card--feature .showcase-card__title {
+        font-size: 18px;
+        line-height: 26px;
+      }
+      .chat-input-mock {
+        max-width: 100%;
+        padding: 6px 6px 6px 14px;
+        gap: 8px;
+      }
+      .chat-input-mock__icon-btn {
+        width: 32px;
+        height: 32px;
+      }
+      .chat-input-mock__submit {
+        width: 40px;
+        height: 40px;
+      }
+      .trader-preview__grid {
+        grid-template-columns: 1fr;
+      }
+      .strategy-preview {
+        max-width: 100%;
+      }
+      .follow-modal {
+        max-width: 100%;
+      }
+    }
+
     /* ── Feedback Marquee ── */
     .feedback {
-      --_star: #f5a623;
-      padding: var(--spacing-20) 0;
-      overflow: hidden;
+      --_star: #faad14;
+      --_star-empty: #dcdfe5;
+      background: var(--color-bg-table);
+      padding: 120px 0;
+      overflow-x: clip;
     }
 
     .feedback__header {
@@ -880,18 +2974,22 @@
     }
 
     .feedback__title {
-      font: var(--text-headline-32);
+      font-size: 46px;
+      line-height: 51px;
+      font-weight: 700;
       color: var(--color-text-primary);
       margin-bottom: var(--spacing-2);
     }
 
     .feedback__subtitle {
-      font: var(--text-body-14);
+      font: var(--text-body-16);
+      font-weight: 400;
       color: var(--color-text-secondary);
     }
 
     .feedback__row {
-      overflow: hidden;
+      overflow-x: clip;
+      padding-block: var(--spacing-1);
       mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
       -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
     }
@@ -906,6 +3004,7 @@
 
     .feedback__runner {
       display: flex;
+      align-items: flex-start;
       gap: var(--spacing-4);
       width: max-content;
     }
@@ -914,9 +3013,18 @@
       animation: fb-ltr 70s linear infinite;
     }
 
+    .feedback__runner--rtl {
+      animation: fb-rtl 76s linear infinite;
+    }
+
     @keyframes fb-ltr {
       from { transform: translateX(0); }
       to   { transform: translateX(-50%); }
+    }
+
+    @keyframes fb-rtl {
+      from { transform: translateX(-50%); }
+      to   { transform: translateX(0); }
     }
 
     .feedback__card {
@@ -926,137 +3034,258 @@
       border: 1px solid var(--color-line-base);
       border-radius: var(--radius-xl);
       padding: var(--spacing-6);
-      box-shadow: var(--shadow-sm);
       display: flex;
       flex-direction: column;
       gap: var(--spacing-3);
+      transition: box-shadow var(--transition-normal), border-color var(--transition-normal);
     }
 
-    .feedback__stars {
-      color: var(--_star);
-      font-size: 16px;
-      letter-spacing: 2px;
-      line-height: 1;
-    }
-
-    .feedback__quote {
-      font: var(--text-body-14);
-      color: var(--color-text-secondary);
-      line-height: 1.65;
-      flex: 1;
+    .feedback__card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--color-line-strong);
     }
 
     .feedback__author {
       display: flex;
-      align-items: center;
-      gap: var(--spacing-2);
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      order: 1;
     }
 
-    .feedback__avatar {
-      flex-shrink: 0;
-      width: 32px;
-      height: 32px;
-      border-radius: var(--radius-full);
-      background: var(--color-brand-container);
-      color: var(--color-text-brand);
-      font: var(--text-body-14-med);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .feedback__avatar,
+    .feedback__author-sep {
+      display: none;
     }
 
     .feedback__author-name {
-      font: var(--text-body-14-med);
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 600;
       color: var(--color-text-primary);
     }
 
-    .feedback__author-sep {
-      width: 1px;
-      height: 12px;
-      background: var(--color-line-strong);
-      flex-shrink: 0;
+    .feedback__author-role {
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 400;
+      color: var(--color-text-secondary);
     }
 
-    .feedback__author-role {
-      font: var(--text-body-12);
-      color: var(--color-text-brand);
+    .feedback__quote {
+      font-size: 14px;
+      line-height: 1.65;
+      font-weight: 400;
+      color: var(--color-text-primary);
+      order: 2;
+      margin: 0;
+    }
+
+    .feedback__stars {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      color: var(--_star);
+      order: 3;
+    }
+
+    .feedback__star {
+      width: 23px;
+      height: 23px;
+      flex-shrink: 0;
+      display: block;
+    }
+
+    /* 半星：左半边填充色（黄），右半边空白色（灰） */
+    .feedback__star--half .feedback__star-bg {
+      fill: var(--_star-empty);
+    }
+
+    .feedback__star--half .feedback__star-fill {
+      fill: currentColor;
+      clip-path: inset(0 50% 0 0);
+    }
+
+    /* ── FAQ ── */
+    .faq {
+      padding: 120px 0;
+      background: var(--color-bg-page);
+    }
+
+    .faq__title {
+      font-size: 46px;
+      line-height: 44px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin: 0 0 var(--spacing-8);
+      text-align: center;
+    }
+
+    .faq__list {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .faq__item {
+      border-bottom: 1px solid var(--color-line-base);
+      padding: var(--spacing-6) 0;
+    }
+
+    .faq__item > summary {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+      list-style: none;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .faq__item > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .faq__item > summary:focus-visible .faq__question {
+      color: var(--color-brand-default);
+    }
+
+    .faq__question {
+      flex: 1;
+      min-width: 0;
+      font-family: var(--font-family-base);
+      font-size: 20px;
+      line-height: 28px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin: 0;
+    }
+
+    .faq__icon {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      background: url('./assets/icons/direction_down-1.svg') no-repeat center / contain;
+      transition: background-image var(--transition-fast);
+    }
+
+    .faq__item[open] .faq__icon {
+      background-image: url('./assets/icons/direction_down.svg');
+    }
+
+    .faq__answer {
+      font-family: var(--font-family-base);
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      margin: var(--spacing-3) 0 0;
     }
   </style>
 </head>
 <body>
   <header class="site-header">
     <div class="site-header__bar">
+      <!-- 左侧：Logo + 主导航 -->
       <div class="site-header__left">
         <a href="/" class="site-header__logo" aria-label="MEXC 首页">
           <img class="site-header__logo-img" src="./assets/header/logo-full.png" alt="MEXC" />
         </a>
         <nav class="site-header__nav" aria-label="主导航">
-          <a href="#" class="site-header__nav-item">买币</a>
-          <a href="#" class="site-header__nav-item">行情</a>
+          <a href="#" class="site-header__nav-item">Markets</a>
           <button type="button" class="site-header__nav-item">
-            现货交易
+            Buy Crypto
             <svg class="site-header__caret" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <button type="button" class="site-header__nav-item">
-            合约
-            <span class="site-header__nav-tag">SPCX</span>
+            現貨交易
+            <svg class="site-header__caret" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="site-header__nav-divider" aria-hidden="true"></div>
+          <button type="button" class="site-header__nav-item">
+            合約交易
+            <svg class="site-header__caret" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span class="site-header__nav-item" style="cursor:default">USDT本位</span>
+          <button type="button" class="site-header__nav-item">
+            市場
             <svg class="site-header__caret" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <button type="button" class="site-header__nav-item">
-            理财
-            <svg class="site-header__caret" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="site-header__hot-badge" aria-hidden="true">HOT</span>
+            M-Day 合約專場
+            <svg class="site-header__fire" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M7.5 1.5C7.5 1.5 4 4 4 7c0 .85.2 1.6.55 2.2C4.3 8.1 4.4 6.9 5 6.1c.15 1.2.75 2.2 1.7 2.8C6.1 7.5 6.7 6.1 7.8 5.4c-.35.9-.05 2.1.5 2.85.9-.9 1.1-2.2.7-3.3.45.5.85 1.2.85 2C9.85 9.3 8.1 11 6.3 11S2.75 9.3 2.75 7.05C2.75 4 7.5 1.5 7.5 1.5z" fill="#FF8800"/>
+            </svg>
           </button>
           <button type="button" class="site-header__nav-item">
-            活动中心
-            <svg class="site-header__caret" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            領$1,000
+            <svg class="site-header__fire" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M7.5 1.5C7.5 1.5 4 4 4 7c0 .85.2 1.6.55 2.2C4.3 8.1 4.4 6.9 5 6.1c.15 1.2.75 2.2 1.7 2.8C6.1 7.5 6.7 6.1 7.8 5.4c-.35.9-.05 2.1.5 2.85.9-.9 1.1-2.2.7-3.3.45.5.85 1.2.85 2C9.85 9.3 8.1 11 6.3 11S2.75 9.3 2.75 7.05C2.75 4 7.5 1.5 7.5 1.5z" fill="#FF8800"/>
+            </svg>
           </button>
-          <button type="button" class="site-header__nav-item">
-            更多
-            <svg class="site-header__caret" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <a href="#" class="site-header__featured">
-            <span class="site-header__featured-icon" aria-hidden="true"></span>
-            Ondo 代币化股票专场
-          </a>
         </nav>
       </div>
+      <!-- 右侧：账户链接 + 功能图标 -->
       <div class="site-header__right">
-        <label class="site-header__search">
-          <svg class="site-header__search-icon" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-            <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.2"/>
-            <path d="M9.5 9.5L12.5 12.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <a href="#" class="site-header__link">資產</a>
+        <a href="#" class="site-header__link">合約訂單</a>
+        <!-- 用戶 -->
+        <button type="button" class="site-header__icon-btn" aria-label="用戶中心">
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M10 6.66669C10.9205 6.66669 11.6667 5.9205 11.6667 5.00002C11.6667 4.07955 10.9205 3.33335 10 3.33335C9.0795 3.33335 8.33333 4.07955 8.33333 5.00002C8.33333 5.9205 9.0795 6.66669 10 6.66669ZM10 8.33335C11.8409 8.33335 13.3333 6.84097 13.3333 5.00002C13.3333 3.15907 11.8409 1.66669 10 1.66669C8.15905 1.66669 6.66667 3.15907 6.66667 5.00002C6.66667 6.84097 8.15905 8.33335 10 8.33335ZM6.66667 11.6667C5.28596 11.6667 4.16667 12.7859 4.16667 14.1667V15.8334H15.8333V14.1667C15.8333 12.7859 14.7141 11.6667 13.3333 11.6667H6.66667ZM2.5 14.1667C2.5 11.8655 4.36548 10 6.66667 10H13.3333C15.6345 10 17.5 11.8655 17.5 14.1667V15.8334C17.5 16.7539 16.7538 17.5 15.8333 17.5H4.16667C3.24619 17.5 2.5 16.7539 2.5 15.8334V14.1667Z" fill="currentColor"/>
           </svg>
-          <input class="site-header__search-input" type="search" placeholder="PLAY" aria-label="搜索" />
-          <span class="site-header__search-kbd" aria-hidden="true">↵</span>
-        </label>
-        <a href="#" class="site-header__cta">充值</a>
-        <a href="#" class="site-header__link">资产</a>
-        <a href="#" class="site-header__link">订单</a>
-        <div class="site-header__icons">
-          <button type="button" class="site-header__icon-btn" aria-label="用户中心">
-            <svg viewBox="0 0 18 18" fill="none" aria-hidden="true">
-              <circle cx="9" cy="6.5" r="2.75" stroke="currentColor" stroke-width="1.3"/>
-              <path d="M3.5 15c.8-2.6 2.9-4 5.5-4s4.7 1.4 5.5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-            </svg>
-          </button>
-          <button type="button" class="site-header__icon-btn" aria-label="消息">
-            <svg viewBox="0 0 18 18" fill="none" aria-hidden="true">
-              <path d="M3 5.5C3 4.4 3.9 3.5 5 3.5h8c1.1 0 2 .9 2 2v5c0 1.1-.9 2-2 2H7l-3 2.5v-2.5H5c-1.1 0-2-.9-2-2v-5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <button type="button" class="site-header__icon-btn" aria-label="下载">
-            <svg viewBox="0 0 18 18" fill="none" aria-hidden="true">
-              <path d="M9 3v8m0 0l-3-3m3 3l3-3M3.5 14h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <button type="button" class="site-header__icon-btn" aria-label="语言">
-            <svg viewBox="0 0 18 18" fill="none" aria-hidden="true">
-              <circle cx="9" cy="9" r="6.5" stroke="currentColor" stroke-width="1.3"/>
-              <ellipse cx="9" cy="9" rx="3" ry="6.5" stroke="currentColor" stroke-width="1.3"/>
-              <path d="M2.5 9h13" stroke="currentColor" stroke-width="1.3"/>
-            </svg>
-          </button>
-        </div>
+        </button>
+        <div class="site-header__divider" aria-hidden="true"></div>
+        <!-- 消息通知（内嵌红点） -->
+        <button type="button" class="site-header__icon-btn site-header__icon-btn--notif" aria-label="消息通知">
+          <svg viewBox="0 0 26 26" fill="none" aria-hidden="true">
+            <path d="M13 5a6.5 6.5 0 00-6.5 6.5v3.2L5 16.5h16l-1.5-1.8V11.5A6.5 6.5 0 0013 5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+            <path d="M11 19.5c0 1.1.9 2 2 2s2-.9 2-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <circle cx="19.5" cy="6.5" r="3.5" fill="#fe445c"/>
+          </svg>
+        </button>
+        <!-- 下載 App -->
+        <button type="button" class="site-header__icon-btn site-header__icon-btn--dl" aria-label="下載 App">
+          <svg viewBox="0 0 22 22" fill="none" aria-hidden="true">
+            <path d="M11.3248 2.86599C11.3248 2.38772 11.7277 2 12.2248 2C12.7218 2 13.1248 2.38772 13.1248 2.86599V14.5025H11.3248V2.86599Z" fill="currentColor"/>
+            <path d="M6.07918 10.5886C6.33404 10.1766 6.8841 10.0435 7.30778 10.2913L12.1389 13.1173L17.1421 10.0009C17.5585 9.74152 18.1122 9.85949 18.3788 10.2643C18.6455 10.6692 18.5242 11.2076 18.1079 11.467L12.9291 14.6927C12.4633 14.9829 11.8686 14.991 11.3946 14.7137L6.38485 11.7833C5.96117 11.5355 5.82432 11.0006 6.07918 10.5886Z" fill="currentColor"/>
+            <path d="M3 19.134C3 18.6557 3.40294 18.268 3.9 18.268H20.1C20.5971 18.268 21 18.6557 21 19.134C21 19.6123 20.5971 20 20.1 20H3.9C3.40294 20 3 19.6123 3 19.134Z" fill="currentColor"/>
+          </svg>
+        </button>
+        <!-- 語言 / 地區 -->
+        <button type="button" class="site-header__icon-btn" aria-label="語言">
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M10.0003 18.3333C5.39783 18.3333 1.66699 14.6025 1.66699 9.99996C1.66699 5.39746 5.39783 1.66663 10.0003 1.66663C14.6028 1.66663 18.3337 5.39746 18.3337 9.99996C18.3337 14.6025 14.6028 18.3333 10.0003 18.3333ZM8.09199 16.3891C7.26984 14.6452 6.79355 12.7585 6.68949 10.8333H3.38533C3.54748 12.1157 4.07859 13.3234 4.91413 14.3097C5.74967 15.296 6.85367 16.0184 8.09199 16.3891V16.3891ZM8.35866 10.8333C8.48449 12.8658 9.06533 14.775 10.0003 16.46C10.9606 14.7304 11.5215 12.8079 11.642 10.8333H8.35866V10.8333ZM16.6153 10.8333H13.3112C13.2071 12.7585 12.7308 14.6452 11.9087 16.3891C13.147 16.0184 14.251 15.296 15.0865 14.3097C15.9221 13.3234 16.4532 12.1157 16.6153 10.8333V10.8333ZM3.38533 9.16663H6.68949C6.79355 7.24145 7.26984 5.3547 8.09199 3.61079C6.85367 3.98153 5.74967 4.70392 4.91413 5.69021C4.07859 6.67649 3.54748 7.88421 3.38533 9.16663V9.16663ZM8.35949 9.16663H11.6412C11.521 7.19212 10.9603 5.26957 10.0003 3.53996C9.04006 5.2695 8.47912 7.19206 8.35866 9.16663H8.35949ZM11.9087 3.61079C12.7308 5.3547 13.2071 7.24145 13.3112 9.16663H16.6153C16.4532 7.88421 15.9221 6.67649 15.0865 5.69021C14.251 4.70392 13.147 3.98153 11.9087 3.61079V3.61079Z" fill="currentColor"/>
+          </svg>
+        </button>
+        <!-- 主題模式 -->
+        <button type="button" class="site-header__icon-btn" aria-label="主題模式">
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <g clip-path="url(#hdr-mode-clip)">
+              <circle cx="9.99963" cy="9.99963" r="4.75354" stroke="currentColor" stroke-width="1.5"/>
+              <rect x="9.625" y="0.375" width="0.75" height="2.25098" rx="0.375" stroke="currentColor" stroke-width="0.75"/>
+              <rect x="2.92877" y="3.45898" width="0.75" height="2.25098" rx="0.375" transform="rotate(-45 2.92877 3.45898)" stroke="currentColor" stroke-width="0.75"/>
+              <rect x="0.375" y="10.377" width="0.75" height="2.25098" rx="0.375" transform="rotate(-90 0.375 10.377)" stroke="currentColor" stroke-width="0.75"/>
+              <rect x="3.45703" y="17.0732" width="0.75" height="2.25098" rx="0.375" transform="rotate(-135 3.45703 17.0732)" stroke="currentColor" stroke-width="0.75"/>
+              <rect x="9.625" y="17.377" width="0.75" height="2.25098" rx="0.375" stroke="currentColor" stroke-width="0.75"/>
+              <rect x="14.9522" y="15.4824" width="0.75" height="2.25098" rx="0.375" transform="rotate(-45 14.9522 15.4824)" stroke="currentColor" stroke-width="0.75"/>
+              <rect x="17.375" y="10.377" width="0.75" height="2.25098" rx="0.375" transform="rotate(-90 17.375 10.377)" stroke="currentColor" stroke-width="0.75"/>
+              <rect x="15.4805" y="5.0517" width="0.75" height="2.25098" rx="0.375" transform="rotate(-135 15.4805 5.0517)" stroke="currentColor" stroke-width="0.75"/>
+            </g>
+            <defs>
+              <clipPath id="hdr-mode-clip">
+                <rect width="20" height="20" fill="white"/>
+              </clipPath>
+            </defs>
+          </svg>
+        </button>
+        <!-- 設置 -->
+        <button type="button" class="site-header__icon-btn" aria-label="設置">
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M7.65975 3.77598C7.00976 4.01986 6.40757 4.36257 5.87156 4.78617C5.92916 5.02184 5.95963 5.26774 5.95963 5.52007C5.95963 7.00955 4.90349 8.25235 3.49923 8.54045C3.39158 9.01573 3.33464 9.51083 3.33464 10.0201C3.33464 10.2588 3.34715 10.4944 3.37153 10.7263C4.83897 10.9632 5.95963 12.2358 5.95963 13.7701C5.95963 14.2397 5.85421 14.6857 5.6659 15.0847C6.19299 15.5364 6.791 15.9069 7.44056 16.1774C7.99368 15.3543 8.93345 14.8117 10.0013 14.8117C11.0692 14.8117 12.0089 15.3543 12.562 16.1774C13.2116 15.9069 13.8096 15.5364 14.3367 15.0847C14.1484 14.6857 14.043 14.2397 14.043 13.7701C14.043 12.2358 15.1636 10.9632 16.6311 10.7263C16.6554 10.4944 16.668 10.2588 16.668 10.0201C16.668 9.51083 16.611 9.01573 16.5034 8.54045C15.0991 8.25235 14.043 7.00954 14.043 5.52007C14.043 5.26774 14.0734 5.02184 14.131 4.78617C13.595 4.36258 12.9928 4.01986 12.3429 3.77598C11.778 4.43464 10.9389 4.85341 10.0013 4.85341C9.06365 4.85341 8.22455 4.43464 7.65975 3.77598ZM7.70069 2.00859C8.13163 1.88505 8.56129 2.09169 8.75816 2.45029C9.00011 2.89101 9.46678 3.18674 10.0013 3.18674C10.5358 3.18674 11.0025 2.89101 11.2444 2.45029C11.4413 2.09169 11.871 1.88505 12.3019 2.00859C13.5563 2.3682 14.6885 3.01383 15.6239 3.86934C15.9312 4.15037 15.9968 4.58353 15.8378 4.93C15.7558 5.10859 15.7096 5.30781 15.7096 5.52007C15.7096 6.30247 16.3439 6.93674 17.1263 6.93674C17.501 6.93674 17.8471 7.17788 17.9634 7.55363C18.2049 8.33409 18.3346 9.1627 18.3346 10.0201C18.3346 10.5652 18.2822 11.0989 18.1818 11.6161C18.0895 12.0915 17.6589 12.3849 17.2203 12.3564C17.1894 12.3544 17.1581 12.3534 17.1263 12.3534C16.3439 12.3534 15.7096 12.9877 15.7096 13.7701C15.7096 14.1018 15.8226 14.4048 16.0128 14.646C16.285 14.9913 16.2874 15.5123 15.9482 15.8578C14.9949 16.8288 13.8046 17.5681 12.4696 17.9816C11.9769 18.1342 11.4925 17.8523 11.3346 17.4145C11.1374 16.8674 10.6137 16.4784 10.0013 16.4784C9.38887 16.4784 8.86519 16.8674 8.66797 17.4145C8.51014 17.8523 8.02573 18.1342 7.533 17.9816C6.198 17.5681 5.00771 16.8288 4.05444 15.8578C3.71521 15.5123 3.71763 14.9912 3.98982 14.646C4.17999 14.4048 4.29297 14.1018 4.29297 13.7701C4.29297 12.9877 3.65871 12.3534 2.8763 12.3534C2.84457 12.3534 2.81322 12.3544 2.78229 12.3564C2.34372 12.3849 1.91308 12.0915 1.8208 11.6161C1.72042 11.0989 1.66797 10.5652 1.66797 10.0201C1.66797 9.16271 1.79772 8.3341 2.03924 7.55363C2.15552 7.17787 2.50156 6.93674 2.8763 6.93674C3.65871 6.93674 4.29297 6.30247 4.29297 5.52007C4.29297 5.30781 4.24683 5.10859 4.16484 4.93C4.00579 4.58353 4.07144 4.15037 4.37871 3.86934C5.31408 3.01383 6.44633 2.3682 7.70069 2.00859ZM6.54297 10.02C6.54297 8.11004 8.09131 6.56169 10.0013 6.56169C11.9113 6.56169 13.4596 8.11004 13.4596 10.02C13.4596 11.93 11.9113 13.4784 10.0013 13.4784C8.09131 13.4784 6.54297 11.93 6.54297 10.02ZM10.0013 8.22836C9.01179 8.22836 8.20964 9.03051 8.20964 10.02C8.20964 11.0095 9.01179 11.8117 10.0013 11.8117C10.9908 11.8117 11.793 11.0095 11.793 10.02C11.793 9.03051 10.9908 8.22836 10.0013 8.22836Z" fill="currentColor"/>
+          </svg>
+        </button>
       </div>
     </div>
   </header>
@@ -1137,6 +3366,7 @@
               <span class="hero__tag-label">中英文</span>
             </span>
           </div>
+          <p class="hero__hint">*点击或在右侧演示卡输入，即可调起对话</p>
           <div class="hero__cta-row">
             <a href="#demo" class="hero__cta">
               立即体验
@@ -1145,63 +3375,73 @@
               </svg>
             </a>
           </div>
-          <p class="hero__hint">*点击或在右侧演示卡输入，即可调起对话</p>
         </div>
 
         <aside class="hero__demo" aria-label="AI 自然语言下单演示" id="demo">
           <div class="demo__header">
-            <div class="demo__title">
-              <span class="demo__ai-badge" aria-hidden="true">AI</span>
-              试一试自然语言下单
-            </div>
+            <div class="demo__title">试一试自然语言下单</div>
             <span class="demo__status">
               <span class="demo__status-dot" aria-hidden="true"></span>
               演示中
             </span>
           </div>
 
-          <div class="demo__conversation">
-            <div class="demo__bubble-user">SOL 启动定投，每周 50u</div>
-            <div class="demo__bubble-ai">
-              <span class="demo__ai-badge" aria-hidden="true">AI</span>
-              已为你生成订单
+          <div class="demo__stage" data-demo-flow>
+            <!-- ① 用户输入气泡（带打字效果） -->
+            <div class="demo__msg demo__msg--user" data-demo-step="user" data-demo-text="帮我限价买入 0.00000073 个 BTC">
+              <span class="demo__msg-text"></span>
+              <span class="demo__msg-cursor" aria-hidden="true"></span>
+            </div>
+
+            <!-- ② AI 思考 → 完成态 -->
+            <div class="demo__msg demo__msg--thinking" data-demo-step="thinking">
+              <img src="./assets/icons/ai-follow.png" alt="" class="demo__thinking-icon" />
+              <span class="demo__thinking-body">
+                <span class="demo__thinking-text">MEXC AI正在思考中</span>
+                <span class="demo__thinking-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              </span>
+            </div>
+
+            <!-- ③ 订单确认弹窗 -->
+            <div class="demo__order-modal" data-demo-step="modal" role="group" aria-label="订单确认">
+              <div class="demo__order-modal-head">
+                <span class="demo__order-modal-title">订单确认</span>
+                <button type="button" class="demo__order-modal-close" aria-label="关闭">
+                  <svg viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path d="M2 2 L12 12 M12 2 L2 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="demo__order-modal-pair">
+                <span class="demo__order-pair-name">BTC/USDT</span>
+                <span class="demo__order-pair-tag">限价/买</span>
+              </div>
+              <div class="demo__order-modal-rows">
+                <div class="demo__order-modal-row">
+                  <span class="demo__order-modal-label">价格</span>
+                  <span class="demo__order-modal-value">73,513.34</span>
+                </div>
+                <div class="demo__order-modal-row">
+                  <span class="demo__order-modal-label">订单数量</span>
+                  <span class="demo__order-modal-value">0.00000073</span>
+                </div>
+                <div class="demo__order-modal-row">
+                  <span class="demo__order-modal-label">金额</span>
+                  <span class="demo__order-modal-value">0.05</span>
+                </div>
+              </div>
+              <div class="demo__order-modal-checkbox">
+                <span class="demo__checkbox-box" aria-hidden="true"></span>
+                <span>不再提示</span>
+              </div>
+              <div class="demo__order-modal-actions">
+                <button type="button" class="demo__order-modal-btn demo__order-modal-btn--secondary">取消</button>
+                <button type="button" class="demo__order-modal-btn demo__order-modal-btn--primary">买入 BTC</button>
+              </div>
             </div>
           </div>
 
-          <div class="demo__order">
-            <div class="demo__order-head">
-              <span class="demo__order-name">定投 · 周期任务</span>
-              <span class="demo__order-tag">待确认</span>
-            </div>
-            <div class="demo__order-rows">
-              <div class="demo__order-row">
-                <span class="demo__order-row-label">交易对</span>
-                <span class="demo__order-row-value">SOL/USDT</span>
-              </div>
-              <div class="demo__order-row">
-                <span class="demo__order-row-label">方向</span>
-                <span class="demo__order-row-value demo__order-row-value--text">买入</span>
-              </div>
-              <div class="demo__order-row">
-                <span class="demo__order-row-label">价格</span>
-                <span class="demo__order-row-value demo__order-row-value--text">市价</span>
-              </div>
-              <div class="demo__order-row">
-                <span class="demo__order-row-label">数量</span>
-                <span class="demo__order-row-value">50 USDT / 周</span>
-              </div>
-              <div class="demo__order-row">
-                <span class="demo__order-row-label">预计总额</span>
-                <span class="demo__order-row-value demo__order-row-value--text demo__order-row-value--up">已启动</span>
-              </div>
-            </div>
-            <div class="demo__order-actions">
-              <button type="button" class="demo__btn demo__btn--secondary">修改</button>
-              <button type="button" class="demo__btn demo__btn--primary">立即下单</button>
-            </div>
-          </div>
-
-          <div class="demo__footer">
+          <div class="demo__footer" hidden>
             <span class="demo__footer-note">示例仅作演示，非投资建议</span>
             <span class="demo__dots" aria-hidden="true">
               <span class="demo__dot"></span>
@@ -1215,7 +3455,7 @@
 
     <section class="stats" aria-label="核心数据">
       <div class="container">
-        <div class="stats__card">
+        <div class="stats__card" data-reveal-children>
           <div class="stats__item">
             <div class="stats__value">1,284,000+</div>
             <div class="stats__label">累计下单笔数</div>
@@ -1225,7 +3465,7 @@
             <div class="stats__label">下单用户数</div>
           </div>
           <div class="stats__item">
-            <div class="stats__value">98.6%</div>
+            <div class="stats__value stats__value--up">98.6%</div>
             <div class="stats__label">订单成功率</div>
           </div>
           <div class="stats__item">
@@ -1236,9 +3476,370 @@
       </div>
     </section>
 
+    <!-- ── Showcase: AI 策略 & AI 跟单社区 ── -->
+    <section class="showcase" aria-labelledby="showcase-title">
+      <div class="container">
+        <div class="showcase__header" data-reveal>
+          <h2 class="showcase__title" id="showcase-title">全能 AI 能力，一站直达</h2>
+          <p class="showcase__subtitle">8 项 AI 能力，覆盖交易决策全链路</p>
+        </div>
+
+        <div class="showcase__grid" data-reveal-children>
+
+          <!-- Card 1: AI 策略 -->
+          <article class="showcase-card showcase-card--blue">
+            <header class="showcase-card__head">
+              <h3 class="showcase-card__title">
+                <img src="./assets/icons/ai-strategy.png" alt="" class="showcase-card__title-icon" />
+                AI 策略
+              </h3>
+              <p class="showcase-card__subtitle">一句话生成策略，新手也能跑出稳定收益。</p>
+            </header>
+            <div class="showcase-card__preview">
+              <div class="strategy-preview" aria-hidden="true">
+                <div class="strategy-preview__brand">
+                  <span class="strategy-preview__brand-icon">
+                    <img src="./assets/icons/strategy-brand.png" alt="" />
+                  </span>
+                  为您推荐
+                </div>
+                <div class="strategy-preview__tabs" role="tablist">
+                  <span class="strategy-tab strategy-tab--active" role="tab" aria-selected="true">消息面</span>
+                  <span class="strategy-tab" role="tab">小白型</span>
+                  <span class="strategy-tab" role="tab">专业型</span>
+                </div>
+
+                <div class="strategy-card-mini">
+                  <div class="strategy-card-mini__title">MACD 策略</div>
+                  <div class="strategy-card-mini__rows">
+                    <div class="strategy-card-mini__row">
+                      <span class="strategy-card-mini__label">当前使用人数</span>
+                      <span class="strategy-card-mini__value">605</span>
+                    </div>
+                    <div class="strategy-card-mini__row">
+                      <span class="strategy-card-mini__label">盈利用户占比</span>
+                      <span class="strategy-card-mini__value strategy-card-mini__value--up">74%</span>
+                    </div>
+                    <div class="strategy-card-mini__row">
+                      <span class="strategy-card-mini__label">总运行资金（USDT）</span>
+                      <span class="strategy-card-mini__value">50,703.25</span>
+                    </div>
+                  </div>
+                  <div class="strategy-card-mini__desc">
+                    <span class="strategy-card-mini__desc-label">简述：</span>MACD 金叉（买入信号）做多，死叉（卖出信号）做空
+                  </div>
+                  <button type="button" class="strategy-card-mini__btn">查看详情</button>
+                </div>
+
+                <div class="strategy-card-mini">
+                  <div class="strategy-card-mini__title">RSI 策略</div>
+                  <div class="strategy-card-mini__rows">
+                    <div class="strategy-card-mini__row">
+                      <span class="strategy-card-mini__label">当前使用人数</span>
+                      <span class="strategy-card-mini__value">387</span>
+                    </div>
+                    <div class="strategy-card-mini__row">
+                      <span class="strategy-card-mini__label">盈利用户占比</span>
+                      <span class="strategy-card-mini__value strategy-card-mini__value--up">94%</span>
+                    </div>
+                    <div class="strategy-card-mini__row">
+                      <span class="strategy-card-mini__label">总运行资金（USDT）</span>
+                      <span class="strategy-card-mini__value">41,430.35</span>
+                    </div>
+                  </div>
+                  <div class="strategy-card-mini__desc">
+                    <span class="strategy-card-mini__desc-label">简述：</span>RSI 处于超卖水平时做多，处于超买水平时做空
+                  </div>
+                  <button type="button" class="strategy-card-mini__btn">查看详情</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 2: AI 跟单社区 -->
+          <article class="showcase-card showcase-card--warm">
+            <header class="showcase-card__head">
+              <h3 class="showcase-card__title">
+                <img src="./assets/icons/ai-follow.png" alt="" class="showcase-card__title-icon" />
+                AI 跟单社区
+              </h3>
+              <p class="showcase-card__subtitle">跟达人下单，看真实交易思路。</p>
+            </header>
+            <div class="showcase-card__preview">
+              <div class="follow-modal" aria-hidden="true">
+                <header class="follow-modal__header">
+                  <div class="follow-modal__title">快捷跟单</div>
+                  <button type="button" class="follow-modal__close" tabindex="-1" aria-label="关闭">
+                    <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                    </svg>
+                  </button>
+                </header>
+                <div class="follow-modal__divider"></div>
+                <div class="follow-modal__content">
+
+                  <div class="follow-modal__trader">
+                    <div class="follow-modal__avatar" aria-hidden="true">T</div>
+                    <div class="follow-modal__trader-name">
+                      <span class="follow-modal__trader-name-text">TopTrader</span>
+                      <svg class="follow-modal__chevron" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div class="follow-modal__field">
+                    <div class="follow-modal__field-label">跟单资金</div>
+                    <div class="follow-modal__balance">
+                      <span class="follow-modal__balance-label-wrap">
+                        <svg class="follow-modal__icon-info" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                          <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/>
+                          <path d="M8 7v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                          <circle cx="8" cy="5" r="0.75" fill="currentColor"/>
+                        </svg>
+                        <span class="follow-modal__balance-label">可用</span>
+                      </span>
+                      <span class="follow-modal__balance-value">1000 USDT</span>
+                      <svg class="follow-modal__icon-swap" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M1.5 4.5h9.5M9 2.5l2 2-2 2M12.5 9.5h-9.5M5 7.5l-2 2 2 2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+                    <div class="follow-modal__input">
+                      <span class="follow-modal__input-placeholder">跟单资金必须≥0.01</span>
+                      <span class="follow-modal__input-unit">USDT</span>
+                      <button type="button" class="follow-modal__input-all" tabindex="-1">全部</button>
+                    </div>
+                    <div class="follow-modal__slider">
+                      <div class="follow-modal__slider-track">
+                        <span class="follow-modal__slider-mark follow-modal__slider-mark--active" style="left: 0%;"></span>
+                        <span class="follow-modal__slider-mark" style="left: 25%;"></span>
+                        <span class="follow-modal__slider-mark" style="left: 50%;"></span>
+                        <span class="follow-modal__slider-mark" style="left: 75%;"></span>
+                        <span class="follow-modal__slider-mark" style="left: 100%;"></span>
+                      </div>
+                      <div class="follow-modal__slider-labels">
+                        <span class="follow-modal__slider-label" style="left: 0%;">1X</span>
+                        <span class="follow-modal__slider-label follow-modal__slider-label--mid" style="left: 25%;">25X</span>
+                        <span class="follow-modal__slider-label follow-modal__slider-label--mid" style="left: 50%;">50X</span>
+                        <span class="follow-modal__slider-label follow-modal__slider-label--mid" style="left: 75%;">75X</span>
+                        <span class="follow-modal__slider-label follow-modal__slider-label--last" style="right: 0;">100X</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="follow-modal__mode">
+                    <span class="follow-modal__mode-label">跟单模式:</span>
+                    <span class="follow-modal__mode-value-wrap">
+                      <span class="follow-modal__mode-value">智能比例</span>
+                      <svg class="follow-modal__icon-info-sm" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
+                        <path d="M6 5.5v3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                        <circle cx="6" cy="3.8" r="0.6" fill="currentColor"/>
+                      </svg>
+                    </span>
+                  </div>
+
+                  <div class="follow-modal__checkbox">
+                    <span class="follow-modal__checkbox-box" aria-hidden="true">
+                      <svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1.5 5.2l2.2 2.2L8.5 2.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                    <span class="follow-modal__checkbox-text">一键复制该交易员 BTCUSDT 仓位</span>
+                  </div>
+
+                </div>
+                <footer class="follow-modal__footer">
+                  <button type="button" class="follow-modal__btn" tabindex="-1" disabled>跟单</button>
+                </footer>
+              </div>
+            </div>
+          </article>
+
+        </div>
+
+        <!-- 小分组标题 -->
+        <h3 class="showcase__subgroup-title">探索更多 AI 功能</h3>
+
+        <!-- 2 张特色卡片（带 mockup 预览），1×2 排布 -->
+        <div class="showcase__grid showcase__grid--feature">
+
+          <!-- MEXC-AI -->
+          <article class="showcase-card showcase-card--feature">
+            <div class="showcase-card__preview-feature" aria-hidden="true">
+              <div class="ai-chat-demo" data-state="idle">
+                <div class="ai-chat-demo__stream">
+                  <div class="ai-chat-demo__msg ai-chat-demo__msg--user" data-msg="user">立即查看策略</div>
+                  <div class="ai-chat-demo__msg ai-chat-demo__msg--thinking" data-msg="thinking">
+                    <span class="ai-chat-demo__avatar">
+                      <img src="./assets/icons/ai-follow.png" alt="" />
+                    </span>
+                    <span class="ai-chat-demo__thinking-body">
+                      深度思考中
+                      <span class="ai-chat-demo__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                    </span>
+                  </div>
+                  <div class="ai-chat-demo__msg ai-chat-demo__msg--reply" data-msg="reply">
+                    <div class="ai-chat-demo__reply-body">
+                      <p class="ai-chat-demo__reply-line" data-line="1">你这套追踪特朗普的策略其实挺明确的，盯着 Truth Social 那边的动向👀</p>
+                      <p class="ai-chat-demo__reply-line ai-chat-demo__reply-line--strong" data-line="2">【策略配置】</p>
+                      <p class="ai-chat-demo__reply-line" data-line="3">• 交易对：BTC_USDT</p>
+                      <p class="ai-chat-demo__reply-line" data-line="4">• 触发条件：</p>
+                      <p class="ai-chat-demo__reply-line ai-chat-demo__reply-line--indent" data-line="5">特朗普发文 5 分钟内涨 0.5% → 做多</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="chat-input-mock chat-input-mock--demo">
+                  <div class="chat-input-mock__text">
+                    <span class="chat-input-mock__placeholder">有问题尽管问我...</span>
+                  </div>
+                  <span class="chat-input-mock__icon-btn" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/>
+                      <path d="M5 11a7 7 0 0 0 14 0"/>
+                      <path d="M12 18v3"/>
+                    </svg>
+                  </span>
+                  <span class="chat-input-mock__submit" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 19V5M5 12l7-7 7 7" />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="showcase-card__body">
+              <h3 class="showcase-card__title">MEXC-AI</h3>
+              <p class="showcase-card__subtitle">用自然语言直接下单的 AI 助手。</p>
+              <a class="text-btn" href="#" aria-label="了解 MEXC-AI 详情">
+                了解详情
+                <svg class="text-btn__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M6 3.5l4.5 4.5L6 12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+
+          <!-- AI 快讯 -->
+          <article class="showcase-card showcase-card--feature">
+            <div class="showcase-card__preview-feature" aria-hidden="true">
+              <div class="news-flash-mock" data-news-flash>
+                <!-- 主 tab -->
+                <div class="news-flash-mock__tabs" role="tablist">
+                  <span class="news-flash-mock__tab is-active">发现</span>
+                  <span class="news-flash-mock__tab">指标</span>
+                  <span class="news-flash-mock__tab">主动交易</span>
+                  <span class="news-flash-mock__tab">资金流动</span>
+                </div>
+                <!-- 子 tab -->
+                <div class="news-flash-mock__subtabs">
+                  <span class="news-flash-mock__subtab">观点</span>
+                  <span class="news-flash-mock__subtab is-active">快讯</span>
+                </div>
+                <!-- 日期分组 -->
+                <div class="news-flash-mock__date">
+                  <span data-news-flash-date>2026-05-28</span>
+                  <span>今天</span>
+                  <svg viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                    <path d="M2 6.5l3-3 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <!-- 快讯流 -->
+                <ul class="news-flash-mock__list" data-news-flash-list></ul>
+              </div>
+            </div>
+            <div class="showcase-card__body">
+              <h3 class="showcase-card__title">AI 快讯</h3>
+              <p class="showcase-card__subtitle">海量资讯中精筛交易信号。</p>
+              <a class="text-btn" href="#" aria-label="了解 AI 快讯 详情">
+                了解详情
+                <svg class="text-btn__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M6 3.5l4.5 4.5L6 12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+
+        </div>
+
+        <!-- 4 张小卡片，1×4 排布 -->
+        <div class="showcase__grid showcase__grid--small" data-reveal-children>
+
+          <!-- 1. 智能 K 线 -->
+          <article class="showcase-card showcase-card--small">
+            <div class="showcase-card__icon-wrap" aria-hidden="true">
+              <img src="./assets/icons/demo_trading_light.svg" alt="" class="showcase-card__icon" />
+            </div>
+            <div class="showcase-card__body">
+              <h3 class="showcase-card__title">智能 K 线</h3>
+              <p class="showcase-card__subtitle">历史事件复盘 + 未来走势概率。</p>
+              <a class="text-btn" href="#" aria-label="了解 智能 K 线 详情">
+                了解详情
+                <svg class="text-btn__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M6 3.5l4.5 4.5L6 12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+
+          <!-- 2. AI 投顾 -->
+          <article class="showcase-card showcase-card--small">
+            <div class="showcase-card__icon-wrap" aria-hidden="true">
+              <img src="./assets/icons/news_light.svg" alt="" class="showcase-card__icon" />
+            </div>
+            <div class="showcase-card__body">
+              <h3 class="showcase-card__title">AI 投顾</h3>
+              <p class="showcase-card__subtitle">专属持仓诊断与交易建议。</p>
+              <a class="text-btn" href="#" aria-label="了解 AI 投顾 详情">
+                了解详情
+                <svg class="text-btn__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M6 3.5l4.5 4.5L6 12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+
+          <!-- 3. AI 榜单 -->
+          <article class="showcase-card showcase-card--small">
+            <div class="showcase-card__icon-wrap" aria-hidden="true">
+              <img src="./assets/icons/web header icon_light.svg" alt="" class="showcase-card__icon" />
+            </div>
+            <div class="showcase-card__body">
+              <h3 class="showcase-card__title">AI 榜单</h3>
+              <p class="showcase-card__subtitle">AI 综合评分的精选币种榜单。</p>
+              <a class="text-btn" href="#" aria-label="了解 AI 榜单 详情">
+                了解详情
+                <svg class="text-btn__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M6 3.5l4.5 4.5L6 12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+
+          <!-- 4. AI 风控 -->
+          <article class="showcase-card showcase-card--small">
+            <div class="showcase-card__icon-wrap" aria-hidden="true">
+              <img src="./assets/icons/MEXC Verify_light.svg" alt="" class="showcase-card__icon" />
+            </div>
+            <div class="showcase-card__body">
+              <h3 class="showcase-card__title">AI 风控</h3>
+              <p class="showcase-card__subtitle">实时监控持仓风险与异常波动。</p>
+              <a class="text-btn" href="#" aria-label="了解 AI 风控 详情">
+                了解详情
+                <svg class="text-btn__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M6 3.5l4.5 4.5L6 12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
     <!-- ── Feedback Marquee ── -->
     <section class="feedback" aria-label="用户评价">
-      <div class="feedback__header container">
+      <div class="feedback__header container" data-reveal>
         <h2 class="feedback__title">用户怎么说</h2>
         <p class="feedback__subtitle">来自真实 MEXC AI 用户的使用反馈</p>
       </div>
@@ -1249,10 +3850,10 @@
 
           <!-- === 原始卡片组 === -->
           <article class="feedback__card" role="listitem">
-            <div class="feedback__stars" aria-label="五星好评">★★★★★</div>
+            <div class="feedback__stars" aria-label="五星好评"><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
             <p class="feedback__quote">中英文混打也精准识别，下单再也不怕拼错币名，体验非常顺滑。</p>
             <div class="feedback__author">
-              <div class="feedback__avatar" aria-hidden="true">W</div>
+              <img class="feedback__avatar" src="https://api.dicebear.com/7.x/lorelei/svg?seed=mexc-fb-9wRt4&size=64" alt="" width="32" height="32" aria-hidden="true" />
               <span class="feedback__author-name">Wang**</span>
               <span class="feedback__author-sep" aria-hidden="true"></span>
               <span class="feedback__author-role">MEXC-AI 用户</span>
@@ -1260,10 +3861,10 @@
           </article>
 
           <article class="feedback__card" role="listitem">
-            <div class="feedback__stars" aria-label="五星好评">★★★★★</div>
+            <div class="feedback__stars" aria-label="五星好评"><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
             <p class="feedback__quote">下单速度比我手动操作快多了，再也不怕踏空行情，太实用了。</p>
             <div class="feedback__author">
-              <div class="feedback__avatar" aria-hidden="true">Z</div>
+              <img class="feedback__avatar" src="https://api.dicebear.com/7.x/lorelei/svg?seed=mexc-fb-6sXp7&size=64" alt="" width="32" height="32" aria-hidden="true" />
               <span class="feedback__author-name">Zhang**</span>
               <span class="feedback__author-sep" aria-hidden="true"></span>
               <span class="feedback__author-role">合约用户</span>
@@ -1271,10 +3872,10 @@
           </article>
 
           <article class="feedback__card" role="listitem">
-            <div class="feedback__stars" aria-label="五星好评">★★★★★</div>
+            <div class="feedback__stars" aria-label="五星好评"><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
             <p class="feedback__quote">AI 给的分析建议我跟了好几次，整体表现都很不错，很有参考价值。</p>
             <div class="feedback__author">
-              <div class="feedback__avatar" aria-hidden="true">L</div>
+              <img class="feedback__avatar" src="https://api.dicebear.com/7.x/lorelei/svg?seed=mexc-fb-3nPq8&size=64" alt="" width="32" height="32" aria-hidden="true" />
               <span class="feedback__author-name">Li**</span>
               <span class="feedback__author-sep" aria-hidden="true"></span>
               <span class="feedback__author-role">跟单用户</span>
@@ -1282,10 +3883,10 @@
           </article>
 
           <article class="feedback__card" role="listitem">
-            <div class="feedback__stars" aria-label="五星好评">★★★★★</div>
+            <div class="feedback__stars" aria-label="五星好评"><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
             <p class="feedback__quote">说一句话就能完成下单，这才是真正的智能交易助手，完全改变了我的习惯。</p>
             <div class="feedback__author">
-              <div class="feedback__avatar" aria-hidden="true">C</div>
+              <img class="feedback__avatar" src="https://api.dicebear.com/7.x/lorelei/svg?seed=mexc-fb-5hJc1&size=64" alt="" width="32" height="32" aria-hidden="true" />
               <span class="feedback__author-name">Chen**</span>
               <span class="feedback__author-sep" aria-hidden="true"></span>
               <span class="feedback__author-role">现货用户</span>
@@ -1293,10 +3894,10 @@
           </article>
 
           <article class="feedback__card" role="listitem">
-            <div class="feedback__stars" aria-label="五星好评">★★★★★</div>
+            <div class="feedback__stars" aria-label="五星好评"><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
             <p class="feedback__quote">识别意图很准，随口说"买点 BTC"就能直接执行，完全不需要学习操作界面。</p>
             <div class="feedback__author">
-              <div class="feedback__avatar" aria-hidden="true">W</div>
+              <img class="feedback__avatar" src="https://api.dicebear.com/7.x/lorelei/svg?seed=mexc-fb-7xKm2&size=64" alt="" width="32" height="32" aria-hidden="true" />
               <span class="feedback__author-name">Wu**</span>
               <span class="feedback__author-sep" aria-hidden="true"></span>
               <span class="feedback__author-role">普通用户</span>
@@ -1304,10 +3905,10 @@
           </article>
 
           <article class="feedback__card" role="listitem">
-            <div class="feedback__stars" aria-label="五星好评">★★★★★</div>
+            <div class="feedback__stars" aria-label="五星好评"><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
             <p class="feedback__quote">多空双向都支持，合约党终于有了称手的 AI 工具，操作效率翻倍。</p>
             <div class="feedback__author">
-              <div class="feedback__avatar" aria-hidden="true">X</div>
+              <img class="feedback__avatar" src="https://api.dicebear.com/7.x/lorelei/svg?seed=mexc-fb-2bLf6&size=64" alt="" width="32" height="32" aria-hidden="true" />
               <span class="feedback__author-name">Xu**</span>
               <span class="feedback__author-sep" aria-hidden="true"></span>
               <span class="feedback__author-role">合约达人</span>
@@ -1316,10 +3917,10 @@
 
           <!-- === 无障碍隐藏的复制组（seamless loop） === -->
           <article class="feedback__card" aria-hidden="true">
-            <div class="feedback__stars">★★★★★</div>
+            <div class="feedback__stars"><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
             <p class="feedback__quote">中英文混打也精准识别，下单再也不怕拼错币名，体验非常顺滑。</p>
             <div class="feedback__author">
-              <div class="feedback__avatar">W</div>
+              <img class="feedback__avatar" src="https://api.dicebear.com/7.x/lorelei/svg?seed=mexc-fb-9wRt4&size=64" alt="" width="32" height="32" aria-hidden="true" />
               <span class="feedback__author-name">Wang**</span>
               <span class="feedback__author-sep"></span>
               <span class="feedback__author-role">MEXC-AI 用户</span>
@@ -1327,10 +3928,10 @@
           </article>
 
           <article class="feedback__card" aria-hidden="true">
-            <div class="feedback__stars">★★★★★</div>
+            <div class="feedback__stars"><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
             <p class="feedback__quote">下单速度比我手动操作快多了，再也不怕踏空行情，太实用了。</p>
             <div class="feedback__author">
-              <div class="feedback__avatar">Z</div>
+              <img class="feedback__avatar" src="https://api.dicebear.com/7.x/lorelei/svg?seed=mexc-fb-6sXp7&size=64" alt="" width="32" height="32" aria-hidden="true" />
               <span class="feedback__author-name">Zhang**</span>
               <span class="feedback__author-sep"></span>
               <span class="feedback__author-role">合约用户</span>
@@ -1338,10 +3939,10 @@
           </article>
 
           <article class="feedback__card" aria-hidden="true">
-            <div class="feedback__stars">★★★★★</div>
+            <div class="feedback__stars"><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
             <p class="feedback__quote">AI 给的分析建议我跟了好几次，整体表现都很不错，很有参考价值。</p>
             <div class="feedback__author">
-              <div class="feedback__avatar">L</div>
+              <img class="feedback__avatar" src="https://api.dicebear.com/7.x/lorelei/svg?seed=mexc-fb-3nPq8&size=64" alt="" width="32" height="32" aria-hidden="true" />
               <span class="feedback__author-name">Li**</span>
               <span class="feedback__author-sep"></span>
               <span class="feedback__author-role">跟单用户</span>
@@ -1349,10 +3950,10 @@
           </article>
 
           <article class="feedback__card" aria-hidden="true">
-            <div class="feedback__stars">★★★★★</div>
+            <div class="feedback__stars"><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
             <p class="feedback__quote">说一句话就能完成下单，这才是真正的智能交易助手，完全改变了我的习惯。</p>
             <div class="feedback__author">
-              <div class="feedback__avatar">C</div>
+              <img class="feedback__avatar" src="https://api.dicebear.com/7.x/lorelei/svg?seed=mexc-fb-5hJc1&size=64" alt="" width="32" height="32" aria-hidden="true" />
               <span class="feedback__author-name">Chen**</span>
               <span class="feedback__author-sep"></span>
               <span class="feedback__author-role">现货用户</span>
@@ -1360,10 +3961,10 @@
           </article>
 
           <article class="feedback__card" aria-hidden="true">
-            <div class="feedback__stars">★★★★★</div>
+            <div class="feedback__stars"><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
             <p class="feedback__quote">识别意图很准，随口说"买点 BTC"就能直接执行，完全不需要学习操作界面。</p>
             <div class="feedback__author">
-              <div class="feedback__avatar">W</div>
+              <img class="feedback__avatar" src="https://api.dicebear.com/7.x/lorelei/svg?seed=mexc-fb-7xKm2&size=64" alt="" width="32" height="32" aria-hidden="true" />
               <span class="feedback__author-name">Wu**</span>
               <span class="feedback__author-sep"></span>
               <span class="feedback__author-role">普通用户</span>
@@ -1371,10 +3972,10 @@
           </article>
 
           <article class="feedback__card" aria-hidden="true">
-            <div class="feedback__stars">★★★★★</div>
+            <div class="feedback__stars"><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg class="feedback__star" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
             <p class="feedback__quote">多空双向都支持，合约党终于有了称手的 AI 工具，操作效率翻倍。</p>
             <div class="feedback__author">
-              <div class="feedback__avatar">X</div>
+              <img class="feedback__avatar" src="https://api.dicebear.com/7.x/lorelei/svg?seed=mexc-fb-2bLf6&size=64" alt="" width="32" height="32" aria-hidden="true" />
               <span class="feedback__author-name">Xu**</span>
               <span class="feedback__author-sep"></span>
               <span class="feedback__author-role">合约达人</span>
@@ -1385,51 +3986,310 @@
       </div>
 
     </section>
+
+    <!-- ── FAQ ── -->
+    <section class="faq" aria-labelledby="faq-title">
+      <div class="container">
+        <h2 class="faq__title" id="faq-title" data-reveal>常见问题</h2>
+
+        <div class="faq__list" data-reveal-children>
+          <details class="faq__item" open>
+            <summary>
+              <span class="faq__question">自然语言下单到底是什么？</span>
+              <span class="faq__icon" aria-hidden="true"></span>
+            </summary>
+            <p class="faq__answer">用一句中文描述你的下单意图（如「限价 65000 买 1 个 BTC」），MEXC-AI 会自动解析意图、生成订单参数，你确认后一键提交。无需在多个表单中切换。</p>
+          </details>
+
+          <details class="faq__item">
+            <summary>
+              <span class="faq__question">自然语言下单需要编程能力吗？</span>
+              <span class="faq__icon" aria-hidden="true"></span>
+            </summary>
+            <p class="faq__answer">完全不需要。只要会用中文/英文描述你的交易意图，就能完成下单。所有解析、参数生成、风控校验都由 AI 自动完成。</p>
+          </details>
+
+          <details class="faq__item">
+            <summary>
+              <span class="faq__question">自然语言下单的订单准确吗？提交前能确认吗？</span>
+              <span class="faq__icon" aria-hidden="true"></span>
+            </summary>
+            <p class="faq__answer">AI 解析后会先生成一份订单预览（品种、方向、价格、数量、订单类型等），你确认无误后再一键提交，过程可控、可撤销。</p>
+          </details>
+
+          <details class="faq__item">
+            <summary>
+              <span class="faq__question">使用 MEXC AI 工具如何收取手续费？</span>
+              <span class="faq__icon" aria-hidden="true"></span>
+            </summary>
+            <p class="faq__answer">使用 AI 工具本身不额外收费，最终成交订单按照 MEXC 现货/合约对应的标准费率执行，与你手动下单的费率完全一致。</p>
+          </details>
+
+          <details class="faq__item">
+            <summary>
+              <span class="faq__question">MEXC AI 支持哪些语言？</span>
+              <span class="faq__icon" aria-hidden="true"></span>
+            </summary>
+            <p class="faq__answer">当前支持中文（简体/繁体）、英文，并兼容中英文混合输入，识别精准。后续将根据用户需求陆续支持更多语种。</p>
+          </details>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
     <div class="container">
-      <div class="site-footer__grid">
-        <div>
-          <a href="/" class="site-header__logo site-footer__logo" aria-label="MEXC 首页">
-            <img class="site-header__logo-img" src="./assets/header/logo-full.png" alt="MEXC" />
-          </a>
-          <p class="site-footer__brand-desc">
-            全球领先的数字资产交易平台，致力于为用户提供安全、专业、高效的加密货币交易服务。
-          </p>
+      <div class="site-footer__main">
+
+        <!-- ── Column 1: Community + Download App ── -->
+        <div class="site-footer__comm-col">
+
+          <div class="site-footer__comm-sect">
+            <h3 class="site-footer__col-title">Community</h3>
+            <div class="site-footer__social-grid">
+
+              <!-- Row 1: Global EN — Telegram · X · Facebook · Instagram -->
+              <div class="site-footer__social-row">
+                <a href="https://t.me/MEXCEnglish" class="site-footer__sicon" aria-label="Telegram">
+                  <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="#29A9EB"/><path d="M14.48 5.8 12.4 15.7c-.15.65-.54.81-1.08.5l-3-2.21-1.44 1.39c-.16.16-.3.3-.6.3l.21-3 5.55-5.02c.24-.21-.05-.33-.37-.12L5.12 11.3l-2.6-.82c-.57-.18-.58-.57.12-.85L13.7 5.02c.48-.18.9.12.78.78z" fill="white"/></svg>
+                </a>
+                <a href="https://twitter.com/MEXC_Global" class="site-footer__sicon" aria-label="X (Twitter)">
+                  <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="#1A1A1A"/><path d="M11.35 9.24 14.26 6h-.76L10.99 8.8 9 6H6.5l3.07 4.43L6.5 14h.76l2.68-3.1 2.11 3.1H14.5L11.35 9.24zm-1.04 1.14-.31-.44L7.55 6.72h1.05l1.98 2.82.31.44 2.6 3.72h-1.05l-2.13-3.32z" fill="white"/></svg>
+                </a>
+                <a href="https://facebook.com/mexcglobal" class="site-footer__sicon" aria-label="Facebook">
+                  <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="#0096FF"/><path d="M11.25 10.5h-1.5V15H8v-4.5H6.75V9H8V8.08C8 6.8 8.65 6 9.9 6H11.5v1.5h-1c-.5 0-.75.18-.75.75V9h1.75l-.25 1.5z" fill="white"/></svg>
+                </a>
+                <a href="https://www.instagram.com/mexc_global" class="site-footer__sicon" aria-label="Instagram">
+                  <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ig-a" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#ffd600"/><stop offset="50%" stop-color="#ff0069"/><stop offset="100%" stop-color="#9900ff"/></radialGradient></defs><circle cx="10" cy="10" r="10" fill="url(#ig-a)"/><rect x="6" y="6" width="8" height="8" rx="2.2" stroke="white" stroke-width="1.1" fill="none"/><circle cx="10" cy="10" r="1.9" stroke="white" stroke-width="1.1" fill="none"/><circle cx="12.7" cy="7.3" r=".6" fill="white"/></svg>
+                </a>
+              </div>
+
+              <!-- Row 2: Chinese — Telegram · X · Facebook · 抖音 -->
+              <div class="site-footer__social-row">
+                <a href="https://t.me/MEXCChinese" class="site-footer__sicon" aria-label="Telegram">
+                  <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="#29A9EB"/><path d="M14.48 5.8 12.4 15.7c-.15.65-.54.81-1.08.5l-3-2.21-1.44 1.39c-.16.16-.3.3-.6.3l.21-3 5.55-5.02c.24-.21-.05-.33-.37-.12L5.12 11.3l-2.6-.82c-.57-.18-.58-.57.12-.85L13.7 5.02c.48-.18.9.12.78.78z" fill="white"/></svg>
+                </a>
+                <a href="https://twitter.com/MEXC_Global" class="site-footer__sicon" aria-label="X (Twitter)">
+                  <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="#1A1A1A"/><path d="M11.35 9.24 14.26 6h-.76L10.99 8.8 9 6H6.5l3.07 4.43L6.5 14h.76l2.68-3.1 2.11 3.1H14.5L11.35 9.24zm-1.04 1.14-.31-.44L7.55 6.72h1.05l1.98 2.82.31.44 2.6 3.72h-1.05l-2.13-3.32z" fill="white"/></svg>
+                </a>
+                <a href="https://facebook.com/mexcglobal" class="site-footer__sicon" aria-label="Facebook">
+                  <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="#0096FF"/><path d="M11.25 10.5h-1.5V15H8v-4.5H6.75V9H8V8.08C8 6.8 8.65 6 9.9 6H11.5v1.5h-1c-.5 0-.75.18-.75.75V9h1.75l-.25 1.5z" fill="white"/></svg>
+                </a>
+                <a href="https://www.douyin.com" class="site-footer__sicon" aria-label="抖音">
+                  <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="#410226"/><path d="M12.7 7.5a1.9 1.9 0 0 1-1.2-.4v3.7a2 2 0 1 1-1.1-1.8V10.1a.85.85 0 1 0 .6.78V7.5h1.7z" fill="white"/></svg>
+                </a>
+              </div>
+
+              <!-- Row 3: JP/KR — LINE · X · Facebook · Instagram -->
+              <div class="site-footer__social-row">
+                <a href="https://line.me" class="site-footer__sicon" aria-label="LINE">
+                  <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="#00B900"/><path d="M16 9.47C16 6.46 13.31 4 10 4S4 6.46 4 9.47c0 2.65 2.35 4.87 5.52 5.29.21.05.5.14.57.32.07.17.04.43.03.6l-.1.55c-.03.17-.13.66.58.36.7-.3 3.79-2.23 5.17-3.82.96-1.04 1.23-2.1 1.23-3.3zm-8.4 1.58H6.56V8H7.5v2.27h.9v.78H7.6zm1.44 0H8.05V8h.99v3.05zm3.04 0h-.99l-1.03-1.7v1.7h-.99V8h.99l1.03 1.69V8h.99v3.05zm1.67-.78h-.89V8H14v1.7h-.69v.57h-.3v-.57H14z" fill="white" fill-rule="evenodd"/></svg>
+                </a>
+                <a href="https://twitter.com/MEXC_Global" class="site-footer__sicon" aria-label="X (Twitter)">
+                  <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="#1A1A1A"/><path d="M11.35 9.24 14.26 6h-.76L10.99 8.8 9 6H6.5l3.07 4.43L6.5 14h.76l2.68-3.1 2.11 3.1H14.5L11.35 9.24zm-1.04 1.14-.31-.44L7.55 6.72h1.05l1.98 2.82.31.44 2.6 3.72h-1.05l-2.13-3.32z" fill="white"/></svg>
+                </a>
+                <a href="https://facebook.com/mexcglobal" class="site-footer__sicon" aria-label="Facebook">
+                  <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="#0096FF"/><path d="M11.25 10.5h-1.5V15H8v-4.5H6.75V9H8V8.08C8 6.8 8.65 6 9.9 6H11.5v1.5h-1c-.5 0-.75.18-.75.75V9h1.75l-.25 1.5z" fill="white"/></svg>
+                </a>
+                <a href="https://www.instagram.com/mexc_global" class="site-footer__sicon" aria-label="Instagram">
+                  <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ig-b" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#ffd600"/><stop offset="50%" stop-color="#ff0069"/><stop offset="100%" stop-color="#9900ff"/></radialGradient></defs><circle cx="10" cy="10" r="10" fill="url(#ig-b)"/><rect x="6" y="6" width="8" height="8" rx="2.2" stroke="white" stroke-width="1.1" fill="none"/><circle cx="10" cy="10" r="1.9" stroke="white" stroke-width="1.1" fill="none"/><circle cx="12.7" cy="7.3" r=".6" fill="white"/></svg>
+                </a>
+              </div>
+
+              <!-- Row 4: Other — X · Facebook · MEXC Community -->
+              <div class="site-footer__social-row">
+                <a href="https://twitter.com/MEXC_Global" class="site-footer__sicon" aria-label="X (Twitter)">
+                  <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="#1A1A1A"/><path d="M11.35 9.24 14.26 6h-.76L10.99 8.8 9 6H6.5l3.07 4.43L6.5 14h.76l2.68-3.1 2.11 3.1H14.5L11.35 9.24zm-1.04 1.14-.31-.44L7.55 6.72h1.05l1.98 2.82.31.44 2.6 3.72h-1.05l-2.13-3.32z" fill="white"/></svg>
+                </a>
+                <a href="https://facebook.com/mexcglobal" class="site-footer__sicon" aria-label="Facebook">
+                  <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="#0096FF"/><path d="M11.25 10.5h-1.5V15H8v-4.5H6.75V9H8V8.08C8 6.8 8.65 6 9.9 6H11.5v1.5h-1c-.5 0-.75.18-.75.75V9h1.75l-.25 1.5z" fill="white"/></svg>
+                </a>
+                <a href="https://www.mexc.com" class="site-footer__sicon" aria-label="MEXC Community">
+                  <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="#0057FF"/><path d="M5.5 14V6.5l3 4.5 2.5-4.5L14 11V14" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+                </a>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="site-footer__dl-sect">
+            <h3 class="site-footer__col-title">Download App</h3>
+            <div class="site-footer__qr-wrap">
+              <div class="site-footer__qr">
+                <!-- QR code placeholder -->
+                <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- top-left finder -->
+                  <rect x="6" y="6" width="30" height="30" rx="2" stroke="#0d0e0f" stroke-width="3.5" fill="none"/>
+                  <rect x="13" y="13" width="16" height="16" fill="#0d0e0f"/>
+                  <!-- top-right finder -->
+                  <rect x="84" y="6" width="30" height="30" rx="2" stroke="#0d0e0f" stroke-width="3.5" fill="none"/>
+                  <rect x="91" y="13" width="16" height="16" fill="#0d0e0f"/>
+                  <!-- bottom-left finder -->
+                  <rect x="6" y="84" width="30" height="30" rx="2" stroke="#0d0e0f" stroke-width="3.5" fill="none"/>
+                  <rect x="13" y="91" width="16" height="16" fill="#0d0e0f"/>
+                  <!-- data modules -->
+                  <rect x="44" y="6" width="5" height="5" fill="#0d0e0f"/><rect x="52" y="6" width="5" height="5" fill="#0d0e0f"/><rect x="68" y="6" width="5" height="5" fill="#0d0e0f"/><rect x="76" y="6" width="5" height="5" fill="#0d0e0f"/>
+                  <rect x="44" y="14" width="5" height="5" fill="#0d0e0f"/><rect x="60" y="14" width="5" height="5" fill="#0d0e0f"/>
+                  <rect x="52" y="22" width="5" height="5" fill="#0d0e0f"/><rect x="68" y="22" width="5" height="5" fill="#0d0e0f"/><rect x="76" y="22" width="5" height="5" fill="#0d0e0f"/>
+                  <rect x="44" y="30" width="5" height="5" fill="#0d0e0f"/><rect x="60" y="30" width="5" height="5" fill="#0d0e0f"/>
+                  <rect x="6" y="44" width="5" height="5" fill="#0d0e0f"/><rect x="22" y="44" width="5" height="5" fill="#0d0e0f"/><rect x="36" y="44" width="5" height="5" fill="#0d0e0f"/>
+                  <rect x="44" y="44" width="5" height="5" fill="#0d0e0f"/><rect x="60" y="44" width="5" height="5" fill="#0d0e0f"/><rect x="76" y="44" width="5" height="5" fill="#0d0e0f"/><rect x="92" y="44" width="5" height="5" fill="#0d0e0f"/><rect x="108" y="44" width="5" height="5" fill="#0d0e0f"/>
+                  <rect x="6" y="52" width="5" height="5" fill="#0d0e0f"/><rect x="30" y="52" width="5" height="5" fill="#0d0e0f"/><rect x="52" y="52" width="5" height="5" fill="#0d0e0f"/><rect x="68" y="52" width="5" height="5" fill="#0d0e0f"/><rect x="84" y="52" width="5" height="5" fill="#0d0e0f"/><rect x="100" y="52" width="5" height="5" fill="#0d0e0f"/>
+                  <rect x="14" y="60" width="5" height="5" fill="#0d0e0f"/><rect x="36" y="60" width="5" height="5" fill="#0d0e0f"/><rect x="60" y="60" width="5" height="5" fill="#0d0e0f"/><rect x="76" y="60" width="5" height="5" fill="#0d0e0f"/><rect x="108" y="60" width="5" height="5" fill="#0d0e0f"/>
+                  <rect x="6" y="68" width="5" height="5" fill="#0d0e0f"/><rect x="22" y="68" width="5" height="5" fill="#0d0e0f"/><rect x="44" y="68" width="5" height="5" fill="#0d0e0f"/><rect x="68" y="68" width="5" height="5" fill="#0d0e0f"/><rect x="84" y="68" width="5" height="5" fill="#0d0e0f"/><rect x="100" y="68" width="5" height="5" fill="#0d0e0f"/>
+                  <rect x="44" y="84" width="5" height="5" fill="#0d0e0f"/><rect x="60" y="84" width="5" height="5" fill="#0d0e0f"/><rect x="84" y="84" width="5" height="5" fill="#0d0e0f"/><rect x="108" y="84" width="5" height="5" fill="#0d0e0f"/>
+                  <rect x="44" y="92" width="5" height="5" fill="#0d0e0f"/><rect x="60" y="92" width="5" height="5" fill="#0d0e0f"/><rect x="76" y="92" width="5" height="5" fill="#0d0e0f"/><rect x="92" y="92" width="5" height="5" fill="#0d0e0f"/>
+                  <rect x="52" y="100" width="5" height="5" fill="#0d0e0f"/><rect x="68" y="100" width="5" height="5" fill="#0d0e0f"/><rect x="100" y="100" width="5" height="5" fill="#0d0e0f"/>
+                  <rect x="44" y="108" width="5" height="5" fill="#0d0e0f"/><rect x="60" y="108" width="5" height="5" fill="#0d0e0f"/><rect x="76" y="108" width="5" height="5" fill="#0d0e0f"/>
+                  <!-- center MEXC brand -->
+                  <rect x="48" y="48" width="24" height="24" rx="3" fill="#0057FF"/>
+                </svg>
+              </div>
+              <span class="site-footer__qr-caption">Scan to Download App</span>
+            </div>
+          </div>
+
         </div>
-        <div>
-          <h3 class="site-footer__col-title">产品</h3>
+
+        <!-- ── Column 2: About MEXC ── -->
+        <div class="site-footer__nav-col">
+          <h3 class="site-footer__col-title">About MEXC</h3>
           <ul class="site-footer__links">
-            <li><a href="#spot">现货交易</a></li>
-            <li><a href="#futures">合约交易</a></li>
-            <li><a href="#earn">理财</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Asset Security</a></li>
+            <li><a href="#">User Agreement</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Risk Disclosure</a></li>
+            <li><a href="#">MEXC Ventures</a></li>
+            <li><a href="#">Why MEXC</a></li>
+            <li><a href="#">Sitemap</a></li>
+            <li>
+              <button type="button">
+                Contact Us
+                <svg class="site-footer__caret" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                  <path d="M1.5 7 5 3l3.5 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </li>
+            <li class="sf-secondary"><a href="#">Business</a></li>
+            <li class="sf-secondary"><a href="#">Institutional</a></li>
+            <li class="sf-secondary"><a href="#">Media</a></li>
           </ul>
         </div>
-        <div>
-          <h3 class="site-footer__col-title">支持</h3>
+
+        <!-- ── Column 3: Products ── -->
+        <div class="site-footer__nav-col">
+          <h3 class="site-footer__col-title">Products</h3>
           <ul class="site-footer__links">
-            <li><a href="#help">帮助中心</a></li>
-            <li><a href="#fees">费率说明</a></li>
-            <li><a href="#api">API 文档</a></li>
+            <li><a href="#">Buy Crypto</a></li>
+            <li><a href="#">P2P</a></li>
+            <li><a href="#">Convert</a></li>
+            <li><a href="#">Spot</a></li>
+            <li><a href="#">Futures</a></li>
+            <li><a href="#">Demo Trading</a></li>
+            <li><a href="#">Copy Trade</a></li>
+            <li><a href="#">Savings</a></li>
+            <li><a href="#">MEXC Loans</a></li>
+            <li><a href="#">Fees</a></li>
           </ul>
         </div>
-        <div>
-          <h3 class="site-footer__col-title">关于</h3>
+
+        <!-- ── Column 4: Support ── -->
+        <div class="site-footer__nav-col">
+          <h3 class="site-footer__col-title">Support</h3>
           <ul class="site-footer__links">
-            <li><a href="#about">关于我们</a></li>
-            <li><a href="#terms">服务条款</a></li>
-            <li><a href="#privacy">隐私政策</a></li>
+            <li><a href="#">Customer Service</a></li>
+            <li><a href="#">VIP Benefits</a></li>
+            <li><a href="#">Submit an Inquiry</a></li>
+            <li><a href="#">Improvement Suggestions</a></li>
+            <li><a href="#">Report Abnormal Funds</a></li>
+            <li><a href="#">Judicial Assistance</a></li>
+            <li><a href="#">MEXC Verify</a></li>
           </ul>
         </div>
+
+        <!-- ── Column 5: Partnerships ── -->
+        <div class="site-footer__nav-col">
+          <h3 class="site-footer__col-title">Partnerships</h3>
+          <ul class="site-footer__links">
+            <li><a href="#">Listing Application</a></li>
+            <li><a href="#">P2P Merchant Application</a></li>
+            <li><a href="#">API</a></li>
+            <li><a href="#">Institutional Services</a></li>
+            <li><a href="#">Affiliate Program</a></li>
+            <li><a href="#">Partner Links</a></li>
+          </ul>
+        </div>
+
+        <!-- ── Column 6: Resources ── -->
+        <div class="site-footer__nav-col site-footer__nav-col--resources">
+          <h3 class="site-footer__col-title">Resources</h3>
+          <ul class="site-footer__links">
+            <li><a href="#">Help Center</a></li>
+            <li><a href="#">MEXC Learn</a></li>
+            <li><a href="#">MEXC Blog</a></li>
+            <li><a href="#">Crypto Calculator</a></li>
+            <li><a href="#">Crypto News</a></li>
+            <li>
+              <a href="#">
+                All Crypto Prices
+                <svg class="site-footer__caret" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                  <path d="M1.5 3.5 5 7l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                How to Buy
+                <svg class="site-footer__caret" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                  <path d="M1.5 7 5 3l3.5 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </li>
+          </ul>
+        </div>
+
       </div>
+
       <div class="site-footer__bottom">
         <p>&copy; 2026 MEXC. All rights reserved.</p>
         <p>数字资产交易存在风险，请谨慎投资。</p>
       </div>
     </div>
   </footer>
+
+  <!-- 底部固定 AI 快捷聊天框 -->
+  <div class="ai-float-bar" role="search" aria-label="MEXC AI 快捷对话">
+    <form class="ai-float-bar__form" action="#" method="get">
+      <span class="ai-float-bar__icon" aria-hidden="true">
+        <img src="./assets/icons/ai-follow.png" alt="" width="32" height="32" />
+      </span>
+      <input
+        type="text"
+        class="ai-float-bar__input"
+        name="q"
+        placeholder="BTC 这段时间在走什么行情？"
+        aria-label="向 MEXC AI 提问"
+        autocomplete="off"
+        data-ai-float-input
+      />
+      <button type="submit" class="ai-float-bar__submit" aria-label="发送">
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M8 13V3M8 3L4 7M8 3l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="ai-float-bar__submit-hint">/</span>
+      </button>
+    </form>
+  </div>
+
   <script src="./assets/dot-grid.js" defer></script>
   <script src="./assets/typewriter.js" defer></script>
+  <script src="./assets/strategy-tabs.js" defer></script>
+  <script src="./assets/ai-chat-demo.js" defer></script>
+  <script src="./assets/news-flash-demo.js" defer></script>
+  <script src="./assets/feedback-ratings.js" defer></script>
+  <script src="./assets/hero-demo-flow.js" defer></script>
+  <script src="./assets/scroll-reveal.js" defer></script>
+  <script src="./assets/ai-float-bar.js" defer></script>
 </body>
 </html>
