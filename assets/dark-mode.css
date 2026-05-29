@@ -1,0 +1,73 @@
+/**
+ * MEXC AI 落地页 — Dark Mode 组件层覆盖
+ *
+ * 色板来源: tokens.css → [data-theme="dark"]（Figma AI功能介绍页）
+ * 层级速记:
+ *   页面底 #0f1015 (--color-bg-page) / Header #000 (--color-bg-l0)
+ *   卡片   #1b1f27 (--color-bg-card) + 描边 (--color-line-base)
+ *   浮层   #272d37 (--color-bg-overlay / --color-bg-card-solid)
+ *
+ * 本文件仅处理：渐变光晕、纹理资源、tokens 未覆盖的 light 遗留变量、主题 UI。
+ */
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  /* dark 块未声明，避免继承 light 的 fill-hover */
+  --color-bg-fill-hover: var(--color-bg-fill-active);
+}
+
+/* ── Showcase 大卡光晕（暗色降低白/暖色成分，品牌蓝走 token） ── */
+html[data-theme="dark"] .showcase-card--blue::before {
+  background:
+    radial-gradient(80% 60% at 20% 0%, color-mix(in srgb, var(--color-brand-default) 14%, transparent) 0%, transparent 65%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-brand-default) 6%, transparent) 0%, transparent 55%);
+}
+
+html[data-theme="dark"] .showcase-card--warm::before {
+  background:
+    radial-gradient(80% 60% at 80% 0%, rgba(255, 165, 100, 0.10) 0%, transparent 65%),
+    linear-gradient(180deg, rgba(255, 200, 150, 0.05) 0%, transparent 55%);
+}
+
+/* Feature 预览区点阵纹理（蓝灰倾向，非通用灰） */
+html[data-theme="dark"] .showcase-card--feature .showcase-card__preview-feature::before {
+  background-image: url('./showcase/feature-bg-dark.svg');
+}
+
+/* ── 跟单弹窗头像（暗色品牌渐变） ── */
+html[data-theme="dark"] .follow-modal__avatar {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-brand-default) 30%, var(--color-bg-card)),
+    var(--color-brand-default)
+  );
+  color: var(--color-text-on-brand);
+}
+
+/* ── Footer QR 占位图（light 硬编码 #0d0e0f → dark 主文字色） ── */
+html[data-theme="dark"] .site-footer__qr svg rect[fill="#0d0e0f"] {
+  fill: var(--color-text-primary);
+}
+
+html[data-theme="dark"] .site-footer__qr svg rect[stroke="#0d0e0f"] {
+  stroke: var(--color-text-primary);
+}
+
+/* ── Header 主题切换图标 ── */
+.theme-toggle__icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.theme-toggle__icon--moon {
+  display: none;
+}
+
+html[data-theme="dark"] .theme-toggle__icon--sun {
+  display: none;
+}
+
+html[data-theme="dark"] .theme-toggle__icon--moon {
+  display: block;
+}

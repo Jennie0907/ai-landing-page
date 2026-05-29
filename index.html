@@ -1,21 +1,27 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <script>
+    /* 暂时禁用 dark 模式：强制 light，不读取 localStorage */
+    (function () {
+      document.documentElement.removeAttribute('data-theme');
+    })();
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="MEXC AI 项目介绍 — 探索智能交易与数字资产创新" />
   <title>MEXC AI 项目介绍</title>
-  <meta name="theme-color" content="#0B0E11" />
+  <meta name="theme-color" content="#ffffff" id="meta-theme-color" />
   <!-- 首屏兜底：内置浏览器若未加载 tokens.css，避免白底白字 -->
   <style>
     :root {
-      --color-bg-page: #0B0E11;
-      --color-text-primary: #EAECEF;
-      --color-brand-default: #00B897;
-      --color-bg-default: #181A20;
-      --color-border-subtle: #1E2026;
-      --color-text-secondary: #B7BDC6;
-      --color-text-tertiary: #848E9C;
+      --color-bg-page: #ffffff;
+      --color-text-primary: #0d0e0f;
+      --color-brand-default: #0057ff;
+      --color-bg-default: #0023660a;
+      --color-border-subtle: #0023660f;
+      --color-text-secondary: #87909f;
+      --color-text-tertiary: #a2a9b6;
       --font-family-base: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
       --font-family-mono: 'SF Mono', ui-monospace, monospace;
       /* Hero 标题字号：tokens.css 未加载时仍生效 */
@@ -23,9 +29,11 @@
     }
   </style>
   <link rel="stylesheet" href="./tokens.css" />
+  <!-- dark 模式暂时下线：<link rel="stylesheet" href="./assets/dark-mode.css" /> -->
   <link rel="stylesheet" href="./assets/dot-grid.css" />
   <link rel="stylesheet" href="./assets/gradient-text.css" />
   <link rel="stylesheet" href="./assets/typewriter.css" />
+  <link rel="stylesheet" href="./assets/ai-float-panel.css" />
   <style>
     *,
     *::before,
@@ -121,7 +129,7 @@
       top: 0;
       z-index: var(--z-sticky);
       height: 56px;
-      background: var(--color-bg-page);
+      background: var(--color-bg-l0);
       border-bottom: 1px solid var(--color-line-base);
     }
 
@@ -260,6 +268,11 @@
       flex-shrink: 0;
     }
 
+    /* 暂时隐藏 dark 模式切换按钮 */
+    #theme-toggle {
+      display: none !important;
+    }
+
     /* 图标按钮（通用 20 × 20） */
     .site-header__icon-btn {
       position: relative;
@@ -315,7 +328,7 @@
 
     .btn--primary {
       background: var(--color-brand-default);
-      color: var(--color-bg-page);
+      color: var(--color-text-white);
     }
 
     .btn--primary:hover {
@@ -527,7 +540,7 @@
       height: 6px;
       border-radius: var(--radius-full);
       background: var(--color-up);
-      box-shadow: 0 0 0 3px rgba(11, 186, 116, 0.18);
+      box-shadow: 0 0 0 3px var(--color-up-bg);
     }
 
     .demo__conversation {
@@ -582,7 +595,7 @@
       align-items: center;
       padding: 2px var(--spacing-2);
       background: var(--color-warning-bg);
-      color: #c2620e;
+      color: var(--color-warning);
       font-size: 11px;
       line-height: 16px;
       font-weight: var(--font-weight-medium);
@@ -1280,6 +1293,7 @@
       color: var(--color-text-primary);
       font-variant-numeric: tabular-nums;
       font-feature-settings: "tnum";
+      min-width: 2ch;
     }
 
     .stats__value--up {
@@ -1414,6 +1428,232 @@
       margin-top: auto;
     }
 
+    /* ── AI 跟单社区 · 帖子信息流（1:1 复刻 Figma；超出部分裁切在卡片内） ── */
+    .showcase-card__preview--feed {
+      align-self: stretch;
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+      padding: 4px 0 0;
+    }
+
+    .follow-feed {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-4);
+      width: 100%;
+      max-width: 440px;
+    }
+
+    .follow-post {
+      flex-shrink: 0;
+      width: 100%;
+      background: var(--color-bg-card);
+      border: none;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-sm);
+      padding: 17px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-4);
+    }
+
+    .follow-post__head {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-2);
+    }
+
+    .follow-post__avatar {
+      flex-shrink: 0;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6a5cff 0%, #2b8cff 100%);
+    }
+
+    .follow-post__avatar--alt {
+      background: linear-gradient(135deg, #4d6bff 0%, #36c2ff 100%);
+    }
+
+    .follow-post__meta {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .follow-post__name {
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .follow-post__time {
+      font-size: 10px;
+      line-height: 14px;
+      font-weight: 400;
+      color: var(--color-text-secondary);
+    }
+
+    .follow-post__tag {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      height: 16px;
+      padding: 0 4px;
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 400;
+      white-space: nowrap;
+    }
+
+    .follow-post__tag--down {
+      background: var(--color-down-bg);
+      color: var(--color-down);
+    }
+
+    .follow-post__tag--up {
+      background: var(--color-up-bg);
+      color: var(--color-up);
+    }
+
+    .follow-post__tag-arrow {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+    }
+
+    .follow-post__title {
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin: 0;
+    }
+
+    .follow-post__desc {
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 400;
+      color: var(--color-text-primary);
+      margin: -8px 0 0;
+    }
+
+    .follow-post__position {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--spacing-2);
+      min-height: 48px;
+      padding: 12px;
+      border: 1px solid var(--color-line-base);
+      border-radius: var(--radius-xl);
+    }
+
+    .follow-post__position-left {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .follow-post__symbol {
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+      white-space: nowrap;
+    }
+
+    .follow-post__position-right {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-4);
+      flex-shrink: 0;
+    }
+
+    .follow-post__pnl {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      font-size: 12px;
+      line-height: 18px;
+      white-space: nowrap;
+    }
+
+    .follow-post__pnl-label {
+      color: var(--color-text-secondary);
+    }
+
+    .follow-post__pnl-value {
+      color: var(--color-down);
+    }
+
+    .follow-post__pnl-value--up {
+      color: var(--color-up);
+    }
+
+    .follow-post__copy {
+      flex-shrink: 0;
+      min-width: 68px;
+      padding: 3px 12px;
+      border: none;
+      border-radius: 999px;
+      background: var(--color-bg-fill);
+      color: var(--color-text-primary);
+      font-size: 12px;
+      line-height: 18px;
+      text-align: center;
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+
+    .follow-post__copy:hover {
+      background: var(--color-bg-fill-hover);
+    }
+
+    .follow-post__copy:active {
+      background: var(--color-bg-fill-pressed);
+    }
+
+    .follow-post__foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--spacing-2);
+    }
+
+    .follow-post__stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--color-text-secondary);
+    }
+
+    .follow-post__stat svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .follow-post__share {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-secondary);
+    }
+
+    .follow-post__share svg {
+      width: 20px;
+      height: 20px;
+    }
+
     /* === Small Showcase Cards (4 per row) === */
     .showcase__grid--small {
       margin-top: var(--spacing-6);
@@ -1538,7 +1778,7 @@
     .showcase__subgroup-title {
       margin-top: var(--spacing-20);
       margin-bottom: var(--spacing-5);
-      font-size: 18px;
+      font-size: 20px;
       line-height: 26px;
       font-weight: 500;
       color: var(--color-text-primary);
@@ -1736,26 +1976,80 @@
       pointer-events: none;
     }
 
-    .ai-float-bar__form {
-      pointer-events: auto;
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-xsm);
-      padding: var(--spacing-2) var(--spacing-6);
-      background: color-mix(in srgb, var(--color-bg-card) 88%, transparent);
-      border: 1px solid var(--color-line-base);
-      border-radius: var(--radius-full);
-      box-shadow: var(--shadow-lg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      transition:
-        border-color var(--transition-fast),
-        box-shadow var(--transition-fast);
+    @property --_bar-angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
     }
 
+    @keyframes bar-border-spin {
+      to { --_bar-angle: 360deg; }
+    }
+
+    .ai-float-bar__form {
+      pointer-events: auto;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-sizing: border-box;
+      padding: 13px 17px;
+      background: color-mix(in srgb, var(--color-bg-card) 88%, transparent);
+      border: 1px solid var(--color-line-base);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      isolation: isolate;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    /* 聚焦时：隐藏静态边框，露出旋转渐变边 */
     .ai-float-bar__form:focus-within {
-      border-color: var(--color-brand-default);
-      box-shadow: var(--shadow-brand);
+      border-color: transparent;
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* 旋转渐变边框（默认隐藏，聚焦时显现） */
+    .ai-float-bar__form::before {
+      content: '';
+      position: absolute;
+      inset: -1.5px;
+      border-radius: calc(var(--radius-xl) + 1.5px);
+      background: conic-gradient(
+        from var(--_bar-angle),
+        #0057ff 0%,
+        #00c6ff 25%,
+        #7c3aff 50%,
+        #ff6b9d 75%,
+        #0057ff 100%
+      );
+      animation: bar-border-spin 4s linear infinite;
+      animation-play-state: paused;
+      opacity: 0;
+      z-index: -1;
+      transition: opacity 0.3s ease;
+    }
+
+    .ai-float-bar__form:focus-within::before {
+      opacity: 1;
+      animation-play-state: running;
+    }
+
+    /* 内容遮罩：盖住 conic 内部只露出 1.5px 边（纯白，完全遮住渐变） */
+    .ai-float-bar__form::after {
+      content: '';
+      position: absolute;
+      inset: 1.5px;
+      border-radius: calc(var(--radius-xl) - 0.5px);
+      background: var(--color-bg-card);
+      z-index: -1;
+    }
+
+    .ai-float-bar__row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
 
     .ai-float-bar__icon {
@@ -1780,55 +2074,77 @@
       border: none;
       outline: none;
       background: transparent;
-      font: var(--text-body-14-med);
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 400;
       color: var(--color-text-primary);
-      padding: var(--spacing-2) 0;
+      padding: 0;
     }
 
     .ai-float-bar__input::placeholder {
-      color: var(--color-text-tertiary);
-      font-weight: var(--font-weight-regular);
+      color: var(--color-text-secondary);
+      font-weight: 400;
     }
 
-    .ai-float-bar__submit {
+    .ai-float-bar__close {
       flex-shrink: 0;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 2px;
-      width: 60px;
-      height: var(--spacing-8);
-      min-width: 60px;
-      padding: 0 var(--spacing-3);
-      border: 1px solid var(--color-line-base);
-      border-radius: var(--radius-md);
-      background: var(--color-brand-container);
-      color: var(--color-brand-default);
+      width: 16px;
+      height: 16px;
+      border: none;
+      background: none;
+      padding: 0;
+      color: var(--color-text-secondary);
       cursor: pointer;
-      transition:
-        background var(--transition-fast),
-        border-color var(--transition-fast),
-        color var(--transition-fast);
+      transition: color var(--transition-fast);
     }
 
-    .ai-float-bar__submit:hover {
-      background: var(--color-bg-fill-hover);
-      border-color: var(--color-brand-default);
+    .ai-float-bar__close:hover {
+      color: var(--color-text-primary);
     }
 
-    .ai-float-bar__submit:active {
-      background: var(--color-brand-container);
-    }
-
-    .ai-float-bar__submit svg {
+    .ai-float-bar__close svg {
       width: 16px;
       height: 16px;
     }
 
-    .ai-float-bar__submit-hint {
-      font: var(--text-body-12);
-      color: var(--color-text-tertiary);
-      line-height: 1;
+    .ai-float-bar__suggestions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow: hidden;
+      mask-image: linear-gradient(to right, black 0%, black 80%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, black 0%, black 80%, transparent 100%);
+      border-radius: 0 0 calc(var(--radius-xl) - 2px) calc(var(--radius-xl) - 2px);
+    }
+
+    .ai-float-bar__suggestion {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 32px;
+      padding: 0 12px;
+      border: none;
+      border-radius: var(--radius-xl);
+      background: var(--color-bg-fill);
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 400;
+      color: var(--color-text-primary);
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+
+    .ai-float-bar__suggestion:hover {
+      background: var(--color-bg-fill-hover);
+    }
+
+    .ai-float-bar__suggestion:active {
+      background: var(--color-bg-fill-pressed);
     }
 
     @media (max-width: 767px) {
@@ -1839,8 +2155,7 @@
       }
 
       .ai-float-bar__form {
-        gap: var(--spacing-xsm);
-        padding: 6px 6px 6px var(--spacing-3);
+        padding: 10px 14px;
       }
 
       .ai-float-bar__icon {
@@ -1849,17 +2164,7 @@
       }
 
       .ai-float-bar__input {
-        font-size: var(--font-size-14);
-      }
-
-      .ai-float-bar__submit {
-        height: 36px;
-        min-width: 36px;
-        padding: 0 var(--spacing-2);
-      }
-
-      .ai-float-bar__submit-hint {
-        display: none;
+        font-size: 14px;
       }
     }
 
@@ -1897,21 +2202,26 @@
     }
 
     .ai-chat-demo__msg {
-      display: none;
+      display: flex;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
       will-change: opacity, transform;
     }
 
-    .ai-chat-demo__msg.is-visible {
-      display: flex;
-      animation: ai-msg-enter 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-
-    .ai-chat-demo__msg--user.is-visible {
+    .ai-chat-demo__msg--user {
       display: inline-block;
     }
 
+    .ai-chat-demo__msg.is-visible {
+      visibility: visible;
+      pointer-events: auto;
+      animation: ai-msg-enter 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
     .ai-chat-demo__msg.is-leaving {
-      display: flex;
+      visibility: visible;
+      pointer-events: none;
       animation: ai-msg-leave 0.28s ease both;
     }
 
@@ -1934,7 +2244,6 @@
       padding: 10px 16px;
       border-radius: var(--radius-lg);
       border-top-right-radius: 6px;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     }
 
     /* AI 思考中 + AI 回复共用左侧布局 */
@@ -1965,7 +2274,7 @@
       background: var(--color-bg-card);
       box-shadow:
         0 0 0 2px var(--color-bg-card),
-        0 4px 12px rgba(0, 87, 255, 0.18);
+        0 4px 12px color-mix(in srgb, var(--color-brand-default) 18%, transparent);
     }
 
     .ai-chat-demo__avatar img {
@@ -1982,6 +2291,14 @@
       padding-top: 5px;
       font: var(--text-body-14-med);
       color: var(--color-text-primary);
+    }
+
+    .ai-chat-demo__msg--thinking.is-done .ai-chat-demo__dots {
+      display: none;
+    }
+
+    .ai-chat-demo__msg--thinking.is-done {
+      color: var(--color-text-secondary);
     }
 
     .ai-chat-demo__dots {
@@ -2231,12 +2548,12 @@
     }
 
     .news-flash-mock__item-badge--up {
-      background: rgba(10, 168, 105, 0.12);
+      background: var(--color-up-bg);
       color: var(--color-up);
     }
 
     .news-flash-mock__item-badge--down {
-      background: rgba(255, 71, 97, 0.12);
+      background: var(--color-down-bg);
       color: var(--color-down);
     }
 
@@ -2250,7 +2567,7 @@
       border-top-right-radius: var(--radius-xl);
       border-bottom: none;
       padding: 0 16px 16px 16px;
-      box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.06);
+      box-shadow: var(--shadow-sm);
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -2590,7 +2907,7 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.06);
+      box-shadow: var(--shadow-sm);
     }
 
     .follow-modal__header {
@@ -2961,9 +3278,10 @@
 
     /* ── Feedback Marquee ── */
     .feedback {
+      display: none;
       --_star: #faad14;
-      --_star-empty: #dcdfe5;
-      background: var(--color-bg-table);
+      --_star-empty: var(--color-line-solid);
+      background: var(--color-bg-page);
       padding: 120px 0;
       overflow-x: clip;
     }
@@ -3104,6 +3422,87 @@
     .feedback__star--half .feedback__star-fill {
       fill: currentColor;
       clip-path: inset(0 50% 0 0);
+    }
+
+    /* ── 用户评价单行跑马灯（承接「用户怎么说」） ── */
+    .quote-strip {
+      background: var(--color-bg-page);
+      padding: 40px 0;
+      height: 200px;
+      overflow-x: clip;
+    }
+
+    .quote-strip__header {
+      margin-bottom: 32px;
+    }
+
+    .quote-strip__caption {
+      text-align: center;
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 400;
+      color: var(--color-text-secondary);
+      margin: 0;
+    }
+
+    /* 左右遮罩与速度均与 .feedback 板块保持一致 */
+    .quote-strip__row {
+      overflow-x: clip;
+      mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+    }
+
+    .quote-strip__row:hover .quote-strip__runner {
+      animation-play-state: paused;
+    }
+
+    .quote-strip__runner {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      width: max-content;
+      animation: fb-ltr 100s linear infinite;
+      animation-play-state: paused;
+    }
+
+    .quote-strip__row.is-visible .quote-strip__runner {
+      animation-play-state: running;
+    }
+
+    .quote-strip__item {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      flex-shrink: 0;
+      white-space: nowrap;
+      font-size: 16px;
+      line-height: 24px;
+    }
+
+    .quote-strip__item::after {
+      content: '';
+      display: inline-block;
+      flex-shrink: 0;
+      align-self: center;
+      width: 1px;
+      height: 20px;
+      background: var(--color-line-base);
+      margin: 0 16px;
+    }
+
+    .quote-strip__name {
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .quote-strip__role {
+      font-weight: 400;
+      color: var(--color-text-secondary);
+    }
+
+    .quote-strip__quote {
+      font-weight: 400;
+      color: var(--color-text-primary);
     }
 
     /* ── FAQ ── */
@@ -3260,8 +3659,8 @@
           </svg>
         </button>
         <!-- 主題模式 -->
-        <button type="button" class="site-header__icon-btn" aria-label="主題模式">
-          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <button type="button" class="site-header__icon-btn" id="theme-toggle" aria-label="切换至深色模式" aria-pressed="false">
+          <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <g clip-path="url(#hdr-mode-clip)">
               <circle cx="9.99963" cy="9.99963" r="4.75354" stroke="currentColor" stroke-width="1.5"/>
               <rect x="9.625" y="0.375" width="0.75" height="2.25098" rx="0.375" stroke="currentColor" stroke-width="0.75"/>
@@ -3278,6 +3677,9 @@
                 <rect width="20" height="20" fill="white"/>
               </clipPath>
             </defs>
+          </svg>
+          <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M15.8 11.2A6.5 6.5 0 017.1 3.2 6.5 6.5 0 1015.8 11.2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
           </svg>
         </button>
         <!-- 設置 -->
@@ -3299,7 +3701,9 @@
           data-dot-size="5"
           data-gap="15"
           data-base-color="#f1f4fa"
-          data-active-color="#3B82F6"
+          data-active-color="#0057ff"
+          data-base-color-dark="#3c4047"
+          data-active-color-dark="#1463ff"
           data-proximity="150"
           data-speed-trigger="100"
           data-shock-radius="280"
@@ -3435,8 +3839,8 @@
                 <span>不再提示</span>
               </div>
               <div class="demo__order-modal-actions">
-                <button type="button" class="demo__order-modal-btn demo__order-modal-btn--secondary">取消</button>
-                <button type="button" class="demo__order-modal-btn demo__order-modal-btn--primary">买入 BTC</button>
+                <button type="button" class="demo__order-modal-btn demo__order-modal-btn--secondary">修改</button>
+                <button type="button" class="demo__order-modal-btn demo__order-modal-btn--primary">立即下单</button>
               </div>
             </div>
           </div>
@@ -3457,382 +3861,21 @@
       <div class="container">
         <div class="stats__card" data-reveal-children>
           <div class="stats__item">
-            <div class="stats__value">1,284,000+</div>
+            <div class="stats__value" data-count="1284000" data-count-suffix="+">1,284,000+</div>
             <div class="stats__label">累计下单笔数</div>
           </div>
           <div class="stats__item">
-            <div class="stats__value">52,000+</div>
+            <div class="stats__value" data-count="52000" data-count-suffix="+">52,000+</div>
             <div class="stats__label">下单用户数</div>
           </div>
           <div class="stats__item">
-            <div class="stats__value stats__value--up">98.6%</div>
+            <div class="stats__value stats__value--up" data-count="98.6" data-count-decimals="1" data-count-suffix="%">98.6%</div>
             <div class="stats__label">订单成功率</div>
           </div>
           <div class="stats__item">
-            <div class="stats__value">67.3%</div>
+            <div class="stats__value" data-count="67.3" data-count-decimals="1" data-count-suffix="%">67.3%</div>
             <div class="stats__label">使用后盈利用户占比</div>
           </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── Showcase: AI 策略 & AI 跟单社区 ── -->
-    <section class="showcase" aria-labelledby="showcase-title">
-      <div class="container">
-        <div class="showcase__header" data-reveal>
-          <h2 class="showcase__title" id="showcase-title">全能 AI 能力，一站直达</h2>
-          <p class="showcase__subtitle">8 项 AI 能力，覆盖交易决策全链路</p>
-        </div>
-
-        <div class="showcase__grid" data-reveal-children>
-
-          <!-- Card 1: AI 策略 -->
-          <article class="showcase-card showcase-card--blue">
-            <header class="showcase-card__head">
-              <h3 class="showcase-card__title">
-                <img src="./assets/icons/ai-strategy.png" alt="" class="showcase-card__title-icon" />
-                AI 策略
-              </h3>
-              <p class="showcase-card__subtitle">一句话生成策略，新手也能跑出稳定收益。</p>
-            </header>
-            <div class="showcase-card__preview">
-              <div class="strategy-preview" aria-hidden="true">
-                <div class="strategy-preview__brand">
-                  <span class="strategy-preview__brand-icon">
-                    <img src="./assets/icons/strategy-brand.png" alt="" />
-                  </span>
-                  为您推荐
-                </div>
-                <div class="strategy-preview__tabs" role="tablist">
-                  <span class="strategy-tab strategy-tab--active" role="tab" aria-selected="true">消息面</span>
-                  <span class="strategy-tab" role="tab">小白型</span>
-                  <span class="strategy-tab" role="tab">专业型</span>
-                </div>
-
-                <div class="strategy-card-mini">
-                  <div class="strategy-card-mini__title">MACD 策略</div>
-                  <div class="strategy-card-mini__rows">
-                    <div class="strategy-card-mini__row">
-                      <span class="strategy-card-mini__label">当前使用人数</span>
-                      <span class="strategy-card-mini__value">605</span>
-                    </div>
-                    <div class="strategy-card-mini__row">
-                      <span class="strategy-card-mini__label">盈利用户占比</span>
-                      <span class="strategy-card-mini__value strategy-card-mini__value--up">74%</span>
-                    </div>
-                    <div class="strategy-card-mini__row">
-                      <span class="strategy-card-mini__label">总运行资金（USDT）</span>
-                      <span class="strategy-card-mini__value">50,703.25</span>
-                    </div>
-                  </div>
-                  <div class="strategy-card-mini__desc">
-                    <span class="strategy-card-mini__desc-label">简述：</span>MACD 金叉（买入信号）做多，死叉（卖出信号）做空
-                  </div>
-                  <button type="button" class="strategy-card-mini__btn">查看详情</button>
-                </div>
-
-                <div class="strategy-card-mini">
-                  <div class="strategy-card-mini__title">RSI 策略</div>
-                  <div class="strategy-card-mini__rows">
-                    <div class="strategy-card-mini__row">
-                      <span class="strategy-card-mini__label">当前使用人数</span>
-                      <span class="strategy-card-mini__value">387</span>
-                    </div>
-                    <div class="strategy-card-mini__row">
-                      <span class="strategy-card-mini__label">盈利用户占比</span>
-                      <span class="strategy-card-mini__value strategy-card-mini__value--up">94%</span>
-                    </div>
-                    <div class="strategy-card-mini__row">
-                      <span class="strategy-card-mini__label">总运行资金（USDT）</span>
-                      <span class="strategy-card-mini__value">41,430.35</span>
-                    </div>
-                  </div>
-                  <div class="strategy-card-mini__desc">
-                    <span class="strategy-card-mini__desc-label">简述：</span>RSI 处于超卖水平时做多，处于超买水平时做空
-                  </div>
-                  <button type="button" class="strategy-card-mini__btn">查看详情</button>
-                </div>
-              </div>
-            </div>
-          </article>
-
-          <!-- Card 2: AI 跟单社区 -->
-          <article class="showcase-card showcase-card--warm">
-            <header class="showcase-card__head">
-              <h3 class="showcase-card__title">
-                <img src="./assets/icons/ai-follow.png" alt="" class="showcase-card__title-icon" />
-                AI 跟单社区
-              </h3>
-              <p class="showcase-card__subtitle">跟达人下单，看真实交易思路。</p>
-            </header>
-            <div class="showcase-card__preview">
-              <div class="follow-modal" aria-hidden="true">
-                <header class="follow-modal__header">
-                  <div class="follow-modal__title">快捷跟单</div>
-                  <button type="button" class="follow-modal__close" tabindex="-1" aria-label="关闭">
-                    <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-                    </svg>
-                  </button>
-                </header>
-                <div class="follow-modal__divider"></div>
-                <div class="follow-modal__content">
-
-                  <div class="follow-modal__trader">
-                    <div class="follow-modal__avatar" aria-hidden="true">T</div>
-                    <div class="follow-modal__trader-name">
-                      <span class="follow-modal__trader-name-text">TopTrader</span>
-                      <svg class="follow-modal__chevron" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </div>
-                  </div>
-
-                  <div class="follow-modal__field">
-                    <div class="follow-modal__field-label">跟单资金</div>
-                    <div class="follow-modal__balance">
-                      <span class="follow-modal__balance-label-wrap">
-                        <svg class="follow-modal__icon-info" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                          <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/>
-                          <path d="M8 7v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-                          <circle cx="8" cy="5" r="0.75" fill="currentColor"/>
-                        </svg>
-                        <span class="follow-modal__balance-label">可用</span>
-                      </span>
-                      <span class="follow-modal__balance-value">1000 USDT</span>
-                      <svg class="follow-modal__icon-swap" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <path d="M1.5 4.5h9.5M9 2.5l2 2-2 2M12.5 9.5h-9.5M5 7.5l-2 2 2 2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </div>
-                    <div class="follow-modal__input">
-                      <span class="follow-modal__input-placeholder">跟单资金必须≥0.01</span>
-                      <span class="follow-modal__input-unit">USDT</span>
-                      <button type="button" class="follow-modal__input-all" tabindex="-1">全部</button>
-                    </div>
-                    <div class="follow-modal__slider">
-                      <div class="follow-modal__slider-track">
-                        <span class="follow-modal__slider-mark follow-modal__slider-mark--active" style="left: 0%;"></span>
-                        <span class="follow-modal__slider-mark" style="left: 25%;"></span>
-                        <span class="follow-modal__slider-mark" style="left: 50%;"></span>
-                        <span class="follow-modal__slider-mark" style="left: 75%;"></span>
-                        <span class="follow-modal__slider-mark" style="left: 100%;"></span>
-                      </div>
-                      <div class="follow-modal__slider-labels">
-                        <span class="follow-modal__slider-label" style="left: 0%;">1X</span>
-                        <span class="follow-modal__slider-label follow-modal__slider-label--mid" style="left: 25%;">25X</span>
-                        <span class="follow-modal__slider-label follow-modal__slider-label--mid" style="left: 50%;">50X</span>
-                        <span class="follow-modal__slider-label follow-modal__slider-label--mid" style="left: 75%;">75X</span>
-                        <span class="follow-modal__slider-label follow-modal__slider-label--last" style="right: 0;">100X</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="follow-modal__mode">
-                    <span class="follow-modal__mode-label">跟单模式:</span>
-                    <span class="follow-modal__mode-value-wrap">
-                      <span class="follow-modal__mode-value">智能比例</span>
-                      <svg class="follow-modal__icon-info-sm" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
-                        <path d="M6 5.5v3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-                        <circle cx="6" cy="3.8" r="0.6" fill="currentColor"/>
-                      </svg>
-                    </span>
-                  </div>
-
-                  <div class="follow-modal__checkbox">
-                    <span class="follow-modal__checkbox-box" aria-hidden="true">
-                      <svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M1.5 5.2l2.2 2.2L8.5 2.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </span>
-                    <span class="follow-modal__checkbox-text">一键复制该交易员 BTCUSDT 仓位</span>
-                  </div>
-
-                </div>
-                <footer class="follow-modal__footer">
-                  <button type="button" class="follow-modal__btn" tabindex="-1" disabled>跟单</button>
-                </footer>
-              </div>
-            </div>
-          </article>
-
-        </div>
-
-        <!-- 小分组标题 -->
-        <h3 class="showcase__subgroup-title">探索更多 AI 功能</h3>
-
-        <!-- 2 张特色卡片（带 mockup 预览），1×2 排布 -->
-        <div class="showcase__grid showcase__grid--feature">
-
-          <!-- MEXC-AI -->
-          <article class="showcase-card showcase-card--feature">
-            <div class="showcase-card__preview-feature" aria-hidden="true">
-              <div class="ai-chat-demo" data-state="idle">
-                <div class="ai-chat-demo__stream">
-                  <div class="ai-chat-demo__msg ai-chat-demo__msg--user" data-msg="user">立即查看策略</div>
-                  <div class="ai-chat-demo__msg ai-chat-demo__msg--thinking" data-msg="thinking">
-                    <span class="ai-chat-demo__avatar">
-                      <img src="./assets/icons/ai-follow.png" alt="" />
-                    </span>
-                    <span class="ai-chat-demo__thinking-body">
-                      深度思考中
-                      <span class="ai-chat-demo__dots" aria-hidden="true"><i></i><i></i><i></i></span>
-                    </span>
-                  </div>
-                  <div class="ai-chat-demo__msg ai-chat-demo__msg--reply" data-msg="reply">
-                    <div class="ai-chat-demo__reply-body">
-                      <p class="ai-chat-demo__reply-line" data-line="1">你这套追踪特朗普的策略其实挺明确的，盯着 Truth Social 那边的动向👀</p>
-                      <p class="ai-chat-demo__reply-line ai-chat-demo__reply-line--strong" data-line="2">【策略配置】</p>
-                      <p class="ai-chat-demo__reply-line" data-line="3">• 交易对：BTC_USDT</p>
-                      <p class="ai-chat-demo__reply-line" data-line="4">• 触发条件：</p>
-                      <p class="ai-chat-demo__reply-line ai-chat-demo__reply-line--indent" data-line="5">特朗普发文 5 分钟内涨 0.5% → 做多</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="chat-input-mock chat-input-mock--demo">
-                  <div class="chat-input-mock__text">
-                    <span class="chat-input-mock__placeholder">有问题尽管问我...</span>
-                  </div>
-                  <span class="chat-input-mock__icon-btn" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/>
-                      <path d="M5 11a7 7 0 0 0 14 0"/>
-                      <path d="M12 18v3"/>
-                    </svg>
-                  </span>
-                  <span class="chat-input-mock__submit" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M12 19V5M5 12l7-7 7 7" />
-                    </svg>
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div class="showcase-card__body">
-              <h3 class="showcase-card__title">MEXC-AI</h3>
-              <p class="showcase-card__subtitle">用自然语言直接下单的 AI 助手。</p>
-              <a class="text-btn" href="#" aria-label="了解 MEXC-AI 详情">
-                了解详情
-                <svg class="text-btn__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <path d="M6 3.5l4.5 4.5L6 12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </a>
-            </div>
-          </article>
-
-          <!-- AI 快讯 -->
-          <article class="showcase-card showcase-card--feature">
-            <div class="showcase-card__preview-feature" aria-hidden="true">
-              <div class="news-flash-mock" data-news-flash>
-                <!-- 主 tab -->
-                <div class="news-flash-mock__tabs" role="tablist">
-                  <span class="news-flash-mock__tab is-active">发现</span>
-                  <span class="news-flash-mock__tab">指标</span>
-                  <span class="news-flash-mock__tab">主动交易</span>
-                  <span class="news-flash-mock__tab">资金流动</span>
-                </div>
-                <!-- 子 tab -->
-                <div class="news-flash-mock__subtabs">
-                  <span class="news-flash-mock__subtab">观点</span>
-                  <span class="news-flash-mock__subtab is-active">快讯</span>
-                </div>
-                <!-- 日期分组 -->
-                <div class="news-flash-mock__date">
-                  <span data-news-flash-date>2026-05-28</span>
-                  <span>今天</span>
-                  <svg viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                    <path d="M2 6.5l3-3 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-                <!-- 快讯流 -->
-                <ul class="news-flash-mock__list" data-news-flash-list></ul>
-              </div>
-            </div>
-            <div class="showcase-card__body">
-              <h3 class="showcase-card__title">AI 快讯</h3>
-              <p class="showcase-card__subtitle">海量资讯中精筛交易信号。</p>
-              <a class="text-btn" href="#" aria-label="了解 AI 快讯 详情">
-                了解详情
-                <svg class="text-btn__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <path d="M6 3.5l4.5 4.5L6 12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </a>
-            </div>
-          </article>
-
-        </div>
-
-        <!-- 4 张小卡片，1×4 排布 -->
-        <div class="showcase__grid showcase__grid--small" data-reveal-children>
-
-          <!-- 1. 智能 K 线 -->
-          <article class="showcase-card showcase-card--small">
-            <div class="showcase-card__icon-wrap" aria-hidden="true">
-              <img src="./assets/icons/demo_trading_light.svg" alt="" class="showcase-card__icon" />
-            </div>
-            <div class="showcase-card__body">
-              <h3 class="showcase-card__title">智能 K 线</h3>
-              <p class="showcase-card__subtitle">历史事件复盘 + 未来走势概率。</p>
-              <a class="text-btn" href="#" aria-label="了解 智能 K 线 详情">
-                了解详情
-                <svg class="text-btn__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <path d="M6 3.5l4.5 4.5L6 12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </a>
-            </div>
-          </article>
-
-          <!-- 2. AI 投顾 -->
-          <article class="showcase-card showcase-card--small">
-            <div class="showcase-card__icon-wrap" aria-hidden="true">
-              <img src="./assets/icons/news_light.svg" alt="" class="showcase-card__icon" />
-            </div>
-            <div class="showcase-card__body">
-              <h3 class="showcase-card__title">AI 投顾</h3>
-              <p class="showcase-card__subtitle">专属持仓诊断与交易建议。</p>
-              <a class="text-btn" href="#" aria-label="了解 AI 投顾 详情">
-                了解详情
-                <svg class="text-btn__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <path d="M6 3.5l4.5 4.5L6 12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </a>
-            </div>
-          </article>
-
-          <!-- 3. AI 榜单 -->
-          <article class="showcase-card showcase-card--small">
-            <div class="showcase-card__icon-wrap" aria-hidden="true">
-              <img src="./assets/icons/web header icon_light.svg" alt="" class="showcase-card__icon" />
-            </div>
-            <div class="showcase-card__body">
-              <h3 class="showcase-card__title">AI 榜单</h3>
-              <p class="showcase-card__subtitle">AI 综合评分的精选币种榜单。</p>
-              <a class="text-btn" href="#" aria-label="了解 AI 榜单 详情">
-                了解详情
-                <svg class="text-btn__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <path d="M6 3.5l4.5 4.5L6 12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </a>
-            </div>
-          </article>
-
-          <!-- 4. AI 风控 -->
-          <article class="showcase-card showcase-card--small">
-            <div class="showcase-card__icon-wrap" aria-hidden="true">
-              <img src="./assets/icons/MEXC Verify_light.svg" alt="" class="showcase-card__icon" />
-            </div>
-            <div class="showcase-card__body">
-              <h3 class="showcase-card__title">AI 风控</h3>
-              <p class="showcase-card__subtitle">实时监控持仓风险与异常波动。</p>
-              <a class="text-btn" href="#" aria-label="了解 AI 风控 详情">
-                了解详情
-                <svg class="text-btn__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <path d="M6 3.5l4.5 4.5L6 12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </a>
-            </div>
-          </article>
-
         </div>
       </div>
     </section>
@@ -3985,6 +4028,457 @@
         </div>
       </div>
 
+    </section>
+
+    <!-- ── 用户评价 · 单行跑马灯（承接「用户怎么说」，同速度 / 同左右遮罩） ── -->
+    <section class="quote-strip" aria-label="用户评价滚动条">
+      <div class="quote-strip__header" data-reveal>
+        <p class="quote-strip__caption">来自真实 MEXC AI 用户的使用反馈</p>
+      </div>
+      <div class="quote-strip__row" data-reveal data-reveal-delay="120">
+        <div class="quote-strip__runner" role="list">
+
+          <!-- === 原始组 === -->
+          <span class="quote-strip__item" role="listitem">
+            <span class="quote-strip__name">Wang**</span>
+            <span class="quote-strip__role">MEXC-AI 用户</span>
+            <span class="quote-strip__quote">中英文混打也精准识别，下单再也不怕拼错币名，体验非常顺滑</span>
+          </span>
+          <span class="quote-strip__item" role="listitem">
+            <span class="quote-strip__name">Zhang**</span>
+            <span class="quote-strip__role">合约用户</span>
+            <span class="quote-strip__quote">下单速度比我手动操作快多了，再也不怕踏空行情，太实用了</span>
+          </span>
+          <span class="quote-strip__item" role="listitem">
+            <span class="quote-strip__name">Li**</span>
+            <span class="quote-strip__role">跟单用户</span>
+            <span class="quote-strip__quote">AI 给的分析建议我跟了好几次，整体表现都很不错，很有参考价值</span>
+          </span>
+          <span class="quote-strip__item" role="listitem">
+            <span class="quote-strip__name">Chen**</span>
+            <span class="quote-strip__role">现货用户</span>
+            <span class="quote-strip__quote">说一句话就能完成下单，这才是真正的智能交易助手，完全改变了我的习惯</span>
+          </span>
+          <span class="quote-strip__item" role="listitem">
+            <span class="quote-strip__name">Wu**</span>
+            <span class="quote-strip__role">普通用户</span>
+            <span class="quote-strip__quote">识别意图很准，随口说"买点 BTC"就能直接执行，完全不需要学习操作界面</span>
+          </span>
+          <span class="quote-strip__item" role="listitem">
+            <span class="quote-strip__name">Xu**</span>
+            <span class="quote-strip__role">合约达人</span>
+            <span class="quote-strip__quote">多空双向都支持，合约党终于有了称手的 AI 工具，操作效率翻倍</span>
+          </span>
+
+          <!-- === 镜像复制组（无缝衔接，对屏幕阅读器隐藏） === -->
+          <span class="quote-strip__item" aria-hidden="true">
+            <span class="quote-strip__name">Wang**</span>
+            <span class="quote-strip__role">MEXC-AI 用户</span>
+            <span class="quote-strip__quote">中英文混打也精准识别，下单再也不怕拼错币名，体验非常顺滑</span>
+          </span>
+          <span class="quote-strip__item" aria-hidden="true">
+            <span class="quote-strip__name">Zhang**</span>
+            <span class="quote-strip__role">合约用户</span>
+            <span class="quote-strip__quote">下单速度比我手动操作快多了，再也不怕踏空行情，太实用了</span>
+          </span>
+          <span class="quote-strip__item" aria-hidden="true">
+            <span class="quote-strip__name">Li**</span>
+            <span class="quote-strip__role">跟单用户</span>
+            <span class="quote-strip__quote">AI 给的分析建议我跟了好几次，整体表现都很不错，很有参考价值</span>
+          </span>
+          <span class="quote-strip__item" aria-hidden="true">
+            <span class="quote-strip__name">Chen**</span>
+            <span class="quote-strip__role">现货用户</span>
+            <span class="quote-strip__quote">说一句话就能完成下单，这才是真正的智能交易助手，完全改变了我的习惯</span>
+          </span>
+          <span class="quote-strip__item" aria-hidden="true">
+            <span class="quote-strip__name">Wu**</span>
+            <span class="quote-strip__role">普通用户</span>
+            <span class="quote-strip__quote">识别意图很准，随口说"买点 BTC"就能直接执行，完全不需要学习操作界面</span>
+          </span>
+          <span class="quote-strip__item" aria-hidden="true">
+            <span class="quote-strip__name">Xu**</span>
+            <span class="quote-strip__role">合约达人</span>
+            <span class="quote-strip__quote">多空双向都支持，合约党终于有了称手的 AI 工具，操作效率翻倍</span>
+          </span>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Showcase: AI 策略 & AI 跟单社区 ── -->
+    <section class="showcase" aria-labelledby="showcase-title">
+      <div class="container">
+        <div class="showcase__header" data-reveal>
+          <h2 class="showcase__title" id="showcase-title">全能 AI 能力，一站直达</h2>
+          <p class="showcase__subtitle">8 项 AI 能力，覆盖交易决策全链路</p>
+        </div>
+
+        <div class="showcase__grid" data-reveal-children>
+
+          <!-- Card 1: AI 策略 -->
+          <article class="showcase-card showcase-card--blue">
+            <header class="showcase-card__head">
+              <h3 class="showcase-card__title">
+                <img src="./assets/icons/ai-strategy.png" alt="" class="showcase-card__title-icon" />
+                AI 策略
+              </h3>
+              <p class="showcase-card__subtitle">一句话生成策略，新手也能跑出稳定收益。</p>
+            </header>
+            <div class="showcase-card__preview">
+              <div class="strategy-preview" aria-hidden="true">
+                <div class="strategy-preview__brand">
+                  <span class="strategy-preview__brand-icon">
+                    <img src="./assets/icons/strategy-brand.png" alt="" />
+                  </span>
+                  为您推荐
+                </div>
+                <div class="strategy-preview__tabs" role="tablist">
+                  <span class="strategy-tab strategy-tab--active" role="tab" aria-selected="true">消息面</span>
+                  <span class="strategy-tab" role="tab">小白型</span>
+                  <span class="strategy-tab" role="tab">专业型</span>
+                </div>
+
+                <div class="strategy-card-mini">
+                  <div class="strategy-card-mini__title">MACD 策略</div>
+                  <div class="strategy-card-mini__rows">
+                    <div class="strategy-card-mini__row">
+                      <span class="strategy-card-mini__label">当前使用人数</span>
+                      <span class="strategy-card-mini__value">605</span>
+                    </div>
+                    <div class="strategy-card-mini__row">
+                      <span class="strategy-card-mini__label">盈利用户占比</span>
+                      <span class="strategy-card-mini__value strategy-card-mini__value--up">74%</span>
+                    </div>
+                    <div class="strategy-card-mini__row">
+                      <span class="strategy-card-mini__label">总运行资金（USDT）</span>
+                      <span class="strategy-card-mini__value">50,703.25</span>
+                    </div>
+                  </div>
+                  <div class="strategy-card-mini__desc">
+                    <span class="strategy-card-mini__desc-label">简述：</span>MACD 金叉（买入信号）做多，死叉（卖出信号）做空
+                  </div>
+                  <button type="button" class="strategy-card-mini__btn">查看详情</button>
+                </div>
+
+                <div class="strategy-card-mini">
+                  <div class="strategy-card-mini__title">RSI 策略</div>
+                  <div class="strategy-card-mini__rows">
+                    <div class="strategy-card-mini__row">
+                      <span class="strategy-card-mini__label">当前使用人数</span>
+                      <span class="strategy-card-mini__value">387</span>
+                    </div>
+                    <div class="strategy-card-mini__row">
+                      <span class="strategy-card-mini__label">盈利用户占比</span>
+                      <span class="strategy-card-mini__value strategy-card-mini__value--up">94%</span>
+                    </div>
+                    <div class="strategy-card-mini__row">
+                      <span class="strategy-card-mini__label">总运行资金（USDT）</span>
+                      <span class="strategy-card-mini__value">41,430.35</span>
+                    </div>
+                  </div>
+                  <div class="strategy-card-mini__desc">
+                    <span class="strategy-card-mini__desc-label">简述：</span>RSI 处于超卖水平时做多，处于超买水平时做空
+                  </div>
+                  <button type="button" class="strategy-card-mini__btn">查看详情</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 2: AI 跟单社区 -->
+          <article class="showcase-card showcase-card--warm">
+            <header class="showcase-card__head">
+              <h3 class="showcase-card__title">
+                <img src="./assets/icons/ai-follow.png" alt="" class="showcase-card__title-icon" />
+                AI 跟单社区
+              </h3>
+              <p class="showcase-card__subtitle">跟达人下单，看真实交易思路。</p>
+            </header>
+            <div class="showcase-card__preview showcase-card__preview--feed">
+              <div class="follow-feed" aria-hidden="true">
+
+                <!-- Post 1 -->
+                <article class="follow-post">
+                  <div class="follow-post__head">
+                    <span class="follow-post__avatar" aria-hidden="true"></span>
+                    <div class="follow-post__meta">
+                      <span class="follow-post__name">Qwen</span>
+                      <span class="follow-post__time">1小时前</span>
+                    </div>
+                    <span class="follow-post__tag follow-post__tag--down">看跌</span>
+                  </div>
+                  <h4 class="follow-post__title">BTC 更新：7万美元战区买家与宏观压力对决</h4>
+                  <p class="follow-post__desc">BTC 正在一个风险规避的环境中交易，市场情绪极度恐慌（恐惧与贪婪指数：12），价格徘徊在 7 万美元支撑区附近。这是一场宏观压力与买方支撑之间的经典博弈。</p>
+                  <div class="follow-post__position">
+                    <div class="follow-post__position-left">
+                      <span class="follow-post__symbol">ETHUSDT 永续</span>
+                      <span class="follow-post__tag follow-post__tag--down">正在做空</span>
+                    </div>
+                    <div class="follow-post__position-right">
+                      <span class="follow-post__pnl">
+                        <span class="follow-post__pnl-label">未实现盈亏</span>
+                        <span class="follow-post__pnl-value">-13.59 USDT</span>
+                      </span>
+                      <button type="button" class="follow-post__copy" tabindex="-1">跟单</button>
+                    </div>
+                  </div>
+                  <div class="follow-post__foot">
+                    <span class="follow-post__tag follow-post__tag--up">
+                      <svg class="follow-post__tag-arrow" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M6 3l3.5 5h-7L6 3z" fill="currentColor"/>
+                      </svg>
+                      60% AI
+                    </span>
+                    <span class="follow-post__stat">
+                      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M3 5.5A2.5 2.5 0 015.5 3h9A2.5 2.5 0 0117 5.5v6A2.5 2.5 0 0114.5 14H8l-3.5 3v-3H5.5A2.5 2.5 0 013 11.5v-6z" stroke="currentColor" stroke-width="1.3"/>
+                      </svg>
+                      783
+                    </span>
+                    <span class="follow-post__share" aria-hidden="true">
+                      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="5" cy="10" r="2" stroke="currentColor" stroke-width="1.3"/>
+                        <circle cx="14.5" cy="5" r="2" stroke="currentColor" stroke-width="1.3"/>
+                        <circle cx="14.5" cy="15" r="2" stroke="currentColor" stroke-width="1.3"/>
+                        <path d="M6.8 9l6-3M6.8 11l6 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                      </svg>
+                    </span>
+                  </div>
+                </article>
+
+                <!-- Post 2（部分露出，被卡片裁切） -->
+                <article class="follow-post">
+                  <div class="follow-post__head">
+                    <span class="follow-post__avatar follow-post__avatar--alt" aria-hidden="true"></span>
+                    <div class="follow-post__meta">
+                      <span class="follow-post__name">DeepSeek</span>
+                      <span class="follow-post__time">2小时前</span>
+                    </div>
+                    <span class="follow-post__tag follow-post__tag--up">看涨</span>
+                  </div>
+                  <h4 class="follow-post__title">ETH 站稳关键支撑，资金面回暖确认反弹</h4>
+                  <p class="follow-post__desc">ETH 现货 ETF 连续净流入，链上活跃度回升，短期结构偏多。回踩不破前低即可视为反弹延续信号。</p>
+                  <div class="follow-post__position">
+                    <div class="follow-post__position-left">
+                      <span class="follow-post__symbol">BTCUSDT 永续</span>
+                      <span class="follow-post__tag follow-post__tag--up">正在做多</span>
+                    </div>
+                    <div class="follow-post__position-right">
+                      <span class="follow-post__pnl">
+                        <span class="follow-post__pnl-label">未实现盈亏</span>
+                        <span class="follow-post__pnl-value follow-post__pnl-value--up">+42.18 USDT</span>
+                      </span>
+                      <button type="button" class="follow-post__copy" tabindex="-1">跟单</button>
+                    </div>
+                  </div>
+                  <div class="follow-post__foot">
+                    <span class="follow-post__tag follow-post__tag--up">
+                      <svg class="follow-post__tag-arrow" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M6 3l3.5 5h-7L6 3z" fill="currentColor"/>
+                      </svg>
+                      82% AI
+                    </span>
+                    <span class="follow-post__stat">
+                      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M3 5.5A2.5 2.5 0 015.5 3h9A2.5 2.5 0 0117 5.5v6A2.5 2.5 0 0114.5 14H8l-3.5 3v-3H5.5A2.5 2.5 0 013 11.5v-6z" stroke="currentColor" stroke-width="1.3"/>
+                      </svg>
+                      1.2k
+                    </span>
+                    <span class="follow-post__share" aria-hidden="true">
+                      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="5" cy="10" r="2" stroke="currentColor" stroke-width="1.3"/>
+                        <circle cx="14.5" cy="5" r="2" stroke="currentColor" stroke-width="1.3"/>
+                        <circle cx="14.5" cy="15" r="2" stroke="currentColor" stroke-width="1.3"/>
+                        <path d="M6.8 9l6-3M6.8 11l6 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                      </svg>
+                    </span>
+                  </div>
+                </article>
+
+              </div>
+            </div>
+          </article>
+
+        </div>
+
+        <!-- 小分组标题 -->
+        <h3 class="showcase__subgroup-title">探索更多 AI 功能</h3>
+
+        <!-- 2 张特色卡片（带 mockup 预览），1×2 排布 -->
+        <div class="showcase__grid showcase__grid--feature">
+
+          <!-- MEXC-AI -->
+          <article class="showcase-card showcase-card--feature">
+            <div class="showcase-card__preview-feature" aria-hidden="true">
+              <div class="ai-chat-demo" data-state="idle">
+                <div class="ai-chat-demo__stream">
+                  <div class="ai-chat-demo__msg ai-chat-demo__msg--user" data-msg="user">立即查看策略</div>
+                  <div class="ai-chat-demo__msg ai-chat-demo__msg--thinking" data-msg="thinking">
+                    <span class="ai-chat-demo__avatar">
+                      <img src="./assets/icons/ai-follow.png" alt="" />
+                    </span>
+                    <span class="ai-chat-demo__thinking-body">
+                      <span class="ai-chat-demo__thinking-text">深度思考中</span>
+                      <span class="ai-chat-demo__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                    </span>
+                  </div>
+                  <div class="ai-chat-demo__msg ai-chat-demo__msg--reply" data-msg="reply">
+                    <div class="ai-chat-demo__reply-body">
+                      <p class="ai-chat-demo__reply-line" data-line="1">你这套追踪特朗普的策略其实挺明确的，盯着 Truth Social 那边的动向👀</p>
+                      <p class="ai-chat-demo__reply-line ai-chat-demo__reply-line--strong" data-line="2">【策略配置】</p>
+                      <p class="ai-chat-demo__reply-line" data-line="3">• 交易对：BTC_USDT</p>
+                      <p class="ai-chat-demo__reply-line" data-line="4">• 触发条件：</p>
+                      <p class="ai-chat-demo__reply-line ai-chat-demo__reply-line--indent" data-line="5">特朗普发文 5 分钟内涨 0.5% → 做多</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="chat-input-mock chat-input-mock--demo">
+                  <div class="chat-input-mock__text">
+                    <span class="chat-input-mock__placeholder">有问题尽管问我...</span>
+                  </div>
+                  <span class="chat-input-mock__icon-btn" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/>
+                      <path d="M5 11a7 7 0 0 0 14 0"/>
+                      <path d="M12 18v3"/>
+                    </svg>
+                  </span>
+                  <span class="chat-input-mock__submit" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 19V5M5 12l7-7 7 7" />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="showcase-card__body">
+              <h3 class="showcase-card__title">MEXC-AI</h3>
+              <p class="showcase-card__subtitle">用自然语言直接下单的 AI 助手。</p>
+              <a class="text-btn" href="#" aria-label="了解 MEXC-AI 详情">
+                了解详情
+                <svg class="text-btn__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M6 3.5l4.5 4.5L6 12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+
+          <!-- AI 快讯 -->
+          <article class="showcase-card showcase-card--feature">
+            <div class="showcase-card__preview-feature" aria-hidden="true">
+              <div class="news-flash-mock" data-news-flash>
+                <!-- 主 tab -->
+                <div class="news-flash-mock__tabs" role="tablist">
+                  <span class="news-flash-mock__tab is-active">发现</span>
+                  <span class="news-flash-mock__tab">指标</span>
+                  <span class="news-flash-mock__tab">主动交易</span>
+                  <span class="news-flash-mock__tab">资金流动</span>
+                </div>
+                <!-- 子 tab -->
+                <div class="news-flash-mock__subtabs">
+                  <span class="news-flash-mock__subtab">观点</span>
+                  <span class="news-flash-mock__subtab is-active">快讯</span>
+                </div>
+                <!-- 日期分组 -->
+                <div class="news-flash-mock__date">
+                  <span data-news-flash-date>2026-05-28</span>
+                  <span>今天</span>
+                  <svg viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                    <path d="M2 6.5l3-3 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <!-- 快讯流 -->
+                <ul class="news-flash-mock__list" data-news-flash-list></ul>
+              </div>
+            </div>
+            <div class="showcase-card__body">
+              <h3 class="showcase-card__title">AI 快讯</h3>
+              <p class="showcase-card__subtitle">海量资讯中精筛交易信号。</p>
+              <a class="text-btn" href="#" aria-label="了解 AI 快讯 详情">
+                了解详情
+                <svg class="text-btn__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M6 3.5l4.5 4.5L6 12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+
+        </div>
+
+        <!-- 4 张小卡片，1×4 排布 -->
+        <div class="showcase__grid showcase__grid--small" data-reveal-children>
+
+          <!-- 1. 智能 K 线 -->
+          <article class="showcase-card showcase-card--small">
+            <div class="showcase-card__icon-wrap" aria-hidden="true">
+              <img src="./assets/icons/demo_trading_light.svg" alt="" class="showcase-card__icon" data-theme-src-light="./assets/icons/demo_trading_light.svg" data-theme-src-dark="./assets/icons/demo_trading_dark.svg" />
+            </div>
+            <div class="showcase-card__body">
+              <h3 class="showcase-card__title">智能 K 线</h3>
+              <p class="showcase-card__subtitle">历史事件复盘 + 未来走势概率。</p>
+              <a class="text-btn" href="#" aria-label="了解 智能 K 线 详情">
+                了解详情
+                <svg class="text-btn__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M6 3.5l4.5 4.5L6 12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+
+          <!-- 2. AI 投顾 -->
+          <article class="showcase-card showcase-card--small">
+            <div class="showcase-card__icon-wrap" aria-hidden="true">
+              <img src="./assets/icons/news_light.svg" alt="" class="showcase-card__icon" data-theme-src-light="./assets/icons/news_light.svg" data-theme-src-dark="./assets/icons/news_light.svg" />
+            </div>
+            <div class="showcase-card__body">
+              <h3 class="showcase-card__title">AI 投顾</h3>
+              <p class="showcase-card__subtitle">专属持仓诊断与交易建议。</p>
+              <a class="text-btn" href="#" aria-label="了解 AI 投顾 详情">
+                了解详情
+                <svg class="text-btn__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M6 3.5l4.5 4.5L6 12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+
+          <!-- 3. AI 榜单 -->
+          <article class="showcase-card showcase-card--small">
+            <div class="showcase-card__icon-wrap" aria-hidden="true">
+              <img src="./assets/icons/web header icon_light.svg" alt="" class="showcase-card__icon" data-theme-src-light="./assets/icons/web header icon_light.svg" data-theme-src-dark="./assets/icons/web header icon_dark.svg" />
+            </div>
+            <div class="showcase-card__body">
+              <h3 class="showcase-card__title">AI 榜单</h3>
+              <p class="showcase-card__subtitle">AI 综合评分的精选币种榜单。</p>
+              <a class="text-btn" href="#" aria-label="了解 AI 榜单 详情">
+                了解详情
+                <svg class="text-btn__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M6 3.5l4.5 4.5L6 12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+
+          <!-- 4. AI 风控 -->
+          <article class="showcase-card showcase-card--small">
+            <div class="showcase-card__icon-wrap" aria-hidden="true">
+              <img src="./assets/icons/MEXC Verify_light.svg" alt="" class="showcase-card__icon" data-theme-src-light="./assets/icons/MEXC Verify_light.svg" data-theme-src-dark="./assets/icons/MEXC Verify_dark.svg" />
+            </div>
+            <div class="showcase-card__body">
+              <h3 class="showcase-card__title">AI 风控</h3>
+              <p class="showcase-card__subtitle">实时监控持仓风险与异常波动。</p>
+              <a class="text-btn" href="#" aria-label="了解 AI 风控 详情">
+                了解详情
+                <svg class="text-btn__icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M6 3.5l4.5 4.5L6 12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+
+        </div>
+      </div>
     </section>
 
     <!-- ── FAQ ── -->
@@ -4261,27 +4755,36 @@
   <!-- 底部固定 AI 快捷聊天框 -->
   <div class="ai-float-bar" role="search" aria-label="MEXC AI 快捷对话">
     <form class="ai-float-bar__form" action="#" method="get">
-      <span class="ai-float-bar__icon" aria-hidden="true">
-        <img src="./assets/icons/ai-follow.png" alt="" width="32" height="32" />
-      </span>
-      <input
-        type="text"
-        class="ai-float-bar__input"
-        name="q"
-        placeholder="BTC 这段时间在走什么行情？"
-        aria-label="向 MEXC AI 提问"
-        autocomplete="off"
-        data-ai-float-input
-      />
-      <button type="submit" class="ai-float-bar__submit" aria-label="发送">
-        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M8 13V3M8 3L4 7M8 3l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span class="ai-float-bar__submit-hint">/</span>
-      </button>
+      <!-- 上行：图标 + 输入框 + 关闭 -->
+      <div class="ai-float-bar__row">
+        <span class="ai-float-bar__icon" aria-hidden="true">
+          <img src="./assets/icons/ai-follow.png" alt="" width="32" height="32" />
+        </span>
+        <input
+          type="text"
+          class="ai-float-bar__input"
+          name="q"
+          placeholder="BTC 这段时间在走什么行情？"
+          aria-label="向 MEXC AI 提问"
+          autocomplete="off"
+          data-ai-float-input
+        />
+        <button type="button" class="ai-float-bar__close" aria-label="关闭">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <!-- 下行：快捷问题 pill -->
+      <div class="ai-float-bar__suggestions">
+        <button type="button" class="ai-float-bar__suggestion">🔥 BTC 现在值得投资吗?</button>
+        <button type="button" class="ai-float-bar__suggestion">📈 降息对BTC有影响吗?</button>
+        <button type="button" class="ai-float-bar__suggestion">📉 川普访华对币圈有影响吗?</button>
+      </div>
     </form>
   </div>
 
+  <!-- dark 模式暂时下线：<script src="./assets/theme-toggle.js" defer></script> -->
   <script src="./assets/dot-grid.js" defer></script>
   <script src="./assets/typewriter.js" defer></script>
   <script src="./assets/strategy-tabs.js" defer></script>
@@ -4290,6 +4793,7 @@
   <script src="./assets/feedback-ratings.js" defer></script>
   <script src="./assets/hero-demo-flow.js" defer></script>
   <script src="./assets/scroll-reveal.js" defer></script>
-  <script src="./assets/ai-float-bar.js" defer></script>
+  <script src="./assets/stats-counter.js" defer></script>
+  <script src="./assets/ai-float-panel.js" defer></script>
 </body>
 </html>

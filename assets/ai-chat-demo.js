@@ -31,9 +31,12 @@
 
   function showMsg(el) {
     if (!el) return;
-    el.classList.remove('is-leaving');
-    void el.offsetWidth; // 强制 reflow，确保 keyframe 重新触发
-    el.classList.add('is-visible');
+    el.classList.remove('is-leaving', 'is-visible');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        el.classList.add('is-visible');
+      });
+    });
   }
 
   function hideMsgInstant(el) {
@@ -60,12 +63,16 @@
     const thinkingMsg = demo.querySelector('[data-msg="thinking"]');
     const replyMsg = demo.querySelector('[data-msg="reply"]');
 
+    const thinkingText = thinkingMsg ? thinkingMsg.querySelector('.ai-chat-demo__thinking-text') : null;
+
     function reset() {
       demo.dataset.state = 'idle';
       hideMsgInstant(userMsg);
       hideMsgInstant(thinkingMsg);
       hideMsgInstant(replyMsg);
       lines.forEach((l) => l.classList.remove('is-visible'));
+      if (thinkingMsg) thinkingMsg.classList.remove('is-done');
+      if (thinkingText) thinkingText.textContent = '深度思考中';
     }
 
     function runCycle() {
@@ -84,7 +91,8 @@
       }, STEP_TIMINGS.thinking));
 
       timers.push(setTimeout(() => {
-        fadeOutMsg(thinkingMsg);
+        if (thinkingText) thinkingText.textContent = '已完成思考';
+        if (thinkingMsg) thinkingMsg.classList.add('is-done');
       }, STEP_TIMINGS.replyFadeOut));
 
       timers.push(setTimeout(() => {

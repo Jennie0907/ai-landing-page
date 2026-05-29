@@ -29,8 +29,27 @@
     returnDuration: num('returnDuration', 1.5),
   };
 
-  const baseRgb = hexToRgb(config.baseColor);
-  const activeRgb = hexToRgb(config.activeColor);
+  let baseRgb = hexToRgb(config.baseColor);
+  let activeRgb = hexToRgb(config.activeColor);
+
+  function resolveThemeColors() {
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const baseColor = dark
+      ? root.dataset.baseColorDark || root.dataset.baseColor || '#3c4047'
+      : root.dataset.baseColor || '#f1f4fa';
+    const activeColor = dark
+      ? root.dataset.activeColorDark || root.dataset.activeColor || '#1463ff'
+      : root.dataset.activeColor || '#3B82F6';
+    return { baseColor, activeColor };
+  }
+
+  function syncThemeColors() {
+    const { baseColor, activeColor } = resolveThemeColors();
+    config.baseColor = baseColor;
+    config.activeColor = activeColor;
+    baseRgb = hexToRgb(baseColor);
+    activeRgb = hexToRgb(activeColor);
+  }
   const proxSq = config.proximity * config.proximity;
 
   let dots = [];
@@ -256,8 +275,14 @@
     }
   }
 
+  syncThemeColors();
   buildGrid();
   rafId = requestAnimationFrame(loop);
+
+  window.addEventListener('themechange', () => {
+    syncThemeColors();
+    buildGrid();
+  });
 
   const throttledMove = throttle(onMove, 50);
   window.addEventListener('mousemove', throttledMove, { passive: true });

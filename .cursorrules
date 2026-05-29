@@ -1,7 +1,7 @@
 # MEXC Landing Page — Cursor Rules
 # Source: Figma → AI功能介绍页 + Web 理财页 light 变量
 # 字体: MEXC Sans
-# 主题: **Light Mode（日间主题）** — 默认且当前唯一启用主题
+# 主题: **Light 默认** + **Dark 可切换**（html[data-theme="dark"]）
 
 ---
 
@@ -9,12 +9,28 @@
 
 这是 MEXC 官网 AI 功能落地页项目。所有代码必须符合 MEXC 设计系统规范：
 - **默认日间主题**（white-first），背景以白 `#ffffff` 为基础，靠层级填充 / 边框 / 阴影做分层
+- **Dark 为蓝灰倾向色板**（非 #1e1e1e / #333 等通用灰），全部引用 `tokens.css` dark 变量
 - **蓝色为品牌主色**（`#0057ff` light / `#1463ff` dark），用于 CTA 按钮、链接、强调元素
-- **绿色仅用于涨价/盈利场景**（light `#0aa869`），红色仅用于跌价/亏损/错误场景（`#ff4761`）
+- **绿色仅用于涨价/盈利场景**（light `#0aa869` / dark `#0bba74`），红色仅用于跌价/亏损/错误场景（`#ff4761`）
 - 主字体为 **MEXC Sans**，数字/价格用等宽字体
 - 所有色值引用 `tokens.css` 中的 CSS 变量，**禁止硬编码任何色值**
-- `tokens.css` 已经是 light 默认 + `[data-theme="dark"]` 覆盖的双主题结构，**当前 `<html>` 不带 data-theme，整页保持 light**
-- 若未来要切回暗色，只需在 `<html data-theme="dark">` 上加属性，无需改组件代码
+- 切换暗色：Header 太阳图标 → `html[data-theme="dark"]`；样式见 `assets/dark-mode.css` 组件层补充
+
+---
+
+## Dark Mode 层级（来源 tokens.css，已核对 Figma）
+
+| 层级 | Figma | 变量 | Dark 色值 |
+|------|-------|------|-----------|
+| 页面最底 / Header | bg/l0 | `--color-bg-l0` | `#000000` |
+| 一级页面 | bg/l1 | `--color-bg-page` | `#0f1015` |
+| 标准卡片 | fill/table-accent | `--color-bg-card` | `#1b1f27` |
+| 浮层/弹窗 | neutral-container | `--color-bg-overlay` / `--color-bg-card-solid` | `#272d37` |
+| 半透明填充 | bg/l2 | `--color-bg-l2` / `--color-bg-fill` | `#393f4f2e` / `#393f4f69` |
+| 卡片描边 | line/base | `--color-line-base` | `#393f4f7a` |
+| 实色分割线 | divider/secondary | `--color-line-solid` | `#2b2e33` |
+
+**速记**：dark 卡片 = `var(--color-bg-card)` + `border: 1px solid var(--color-line-base)`。
 
 ---
 
@@ -250,13 +266,14 @@ section { padding: var(--spacing-20) 0; }    /* 80px 上下 */
 6. **禁止**圆角超过 `--radius-xl`（16px）
 7. **禁止**将红色 `#ff4761` 用于 CTA 或强调（红色只用于跌价/错误）
 8. **禁止**随意使用高饱和渐变背景
-9. **禁止**给 `<html>` 添加 `data-theme="dark"`，除非用户明确要求切换暗色
+9. **禁止**在 dark 模式使用 `#1e1e1e` / `#2d2d2d` / `#333` 等通用中性灰，必须用 tokens dark 变量
 
 ---
 
 ## 每次生成组件前自检清单
 
 - [ ] 背景色是否为 light 系变量？（默认 `--color-bg-page` 或 `--color-bg-card`）
+- [ ] Dark 模式是否用 `--color-bg-l0`（Header）/ `--color-bg-page` / `--color-bg-card` 分层？
 - [ ] CTA 按钮是否用了品牌蓝 `--color-brand-default`？
 - [ ] 涨跌色是否严格区分绿/红？
 - [ ] 文字是否按 primary/secondary/tertiary 层级使用？

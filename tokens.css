@@ -10,6 +10,25 @@
  *   - 默认 Light Mode（:root）
  *   - html[data-theme="dark"] 或 .dark 切换暗色
  *   - 所有样式只引用变量，禁止硬编码色值
+ *
+ * ─────────────────────────────────────────────
+ * ⚠️ 给 AI / Cursor 的强制规则（DARK MODE 常出错）
+ * ─────────────────────────────────────────────
+ * MEXC 的 dark 不是普通中性灰，是带蓝灰倾向的色板。
+ * 禁止自行使用 #1e1e1e / #2d2d2d / #333 等通用灰，
+ * 所有色值必须引用本文件 [data-theme="dark"] 块的变量。
+ *
+ * Dark 模式层级与卡片规范（来源 Figma，已核对）:
+ *   页面最底色  bg/l0            #000000   → var(--color-bg-l0)
+ *   一级区块    bg/l1            #0f1015   → var(--color-bg-page)
+ *   标准卡片    fill/table-accent #1b1f27  → var(--color-bg-card)        ← 卡片默认背景
+ *   浮层/弹窗   neutral-container #272d37  → var(--color-bg-overlay) / --color-bg-card-solid
+ *   半透明填充  bg/l2            #393f4f2e → var(--color-bg-l2)
+ *   卡片描边    line/base        #393f4f7a → var(--color-line-base)      ← 卡片默认描边
+ *   强描边      line/strong      #393f4fa3 → var(--color-line-strong)
+ *   实色分割线  divider/secondary #2b2e33  → var(--color-line-solid)
+ *
+ * 速记：dark 卡片 = 背景 var(--color-bg-card) + 描边 var(--color-line-base)。
  */
 
 /* ═══════════════════════════════════════════
@@ -75,6 +94,48 @@
   --shadow-md:              0 4px 16px rgba(0, 0, 0, 0.10);
   --shadow-lg:              0 8px 32px rgba(0, 0, 0, 0.12);
   --shadow-brand:           0 4px 20px rgba(0, 87, 255, 0.20);
+
+  /* ── 交互填充态 Fill states ───────────── */
+  --color-bg-fill-active:   #0023661a;   /* 按钮/列表 active */
+  --color-bg-fill-pressed:  #00236614;   /* fill/pressed — 8% 蓝灰填充（按钮 pressed/active） */
+  --color-bg-disabled:      #0023660a;   /* 禁用背景 */
+
+  /* ── 控件/输入 Control ────────────────── */
+  --color-bg-input:         #ffffff;     /* 输入框背景 */
+  --color-bg-input-hover:   #0023660a;
+  --color-bg-tag:           #0023660a;   /* 标签/徽章背景 */
+  --color-text-tag:         #87909f;
+
+  /* ── 蒙层/浮层 Scrim & Tooltip ────────── */
+  --color-bg-mask:          rgba(13, 14, 15, 0.45); /* 模态遮罩 */
+  --color-bg-tooltip:       #0d0e0f;
+  --color-text-on-tooltip:  #ffffff;
+  --color-bg-skeleton:      #0023660a;   /* 骨架屏 */
+
+  /* ── 滚动条 Scrollbar ─────────────────── */
+  --color-scrollbar-thumb:  #00236629;
+  --color-scrollbar-track:  transparent;
+
+  /* ── 文字补充 Content ─────────────────── */
+  --color-text-on-brand:    #ffffff;     /* 品牌填充上的文字 */
+  --color-text-disabled:    #c2c7d0;
+  --color-text-link:        var(--color-brand-default);
+
+  /* ── 图标补充 Icon ────────────────────── */
+  --color-icon-primary:     #0d0e0f;
+  --color-icon-tertiary:    #a2a9b6;
+
+  /* ── 分割线/实色卡片补充 ──────────────── */
+  --color-line-solid:       #eceef1;     /* 实色分割线（非透明） */
+  --color-bg-card-solid:    #f7f8fa;     /* 实色卡片/浮层（非透明） */
+
+  /* ── 其余专有色（light 对应值）────────── */
+  --color-bg-fill-gray:     #eef0f3;     /* 实色灰填充 */
+  --color-bg-segment-sel:   #ffffff;     /* 选中分段 */
+  --color-brand-content-soft: #6b9cff;   /* 品牌弱化文字 */
+  --color-warning-hover:    #d96a12;
+  --color-error-container:  #fff0f1;     /* 错误容器底 */
+  --color-gold:             #b88a2e;     /* 金色文字（浅底需加深） */
 }
 
 /* ═══════════════════════════════════════════
@@ -141,6 +202,48 @@
   --shadow-md:              0 4px 16px rgba(0, 0, 0, 0.50);
   --shadow-lg:              0 8px 32px rgba(0, 0, 0, 0.60);
   --shadow-brand:           0 4px 20px rgba(20, 99, 255, 0.30);
+
+  /* ── 交互填充态 Fill states ───────────── */
+  --color-bg-fill-active:   #393f4f8f;   /* 按钮/列表 active */
+  --color-bg-fill-pressed:  #393f4f52;   /* pressed */
+  --color-bg-disabled:      #393f4f2e;   /* 禁用背景 */
+
+  /* ── 控件/输入 Control ────────────────── */
+  --color-bg-input:         #1b1f27;     /* 输入框背景 */
+  --color-bg-input-hover:   #393f4f2e;
+  --color-bg-tag:           #393f4f2e;   /* 标签/徽章背景 */
+  --color-text-tag:         #87909f;
+
+  /* ── 蒙层/浮层 Scrim & Tooltip ────────── */
+  --color-bg-mask:          rgba(0, 0, 0, 0.60); /* 模态遮罩 */
+  --color-bg-tooltip:       #272d37;
+  --color-text-on-tooltip:  #f2f4f6;
+  --color-bg-skeleton:      #393f4f2e;   /* 骨架屏 */
+
+  /* ── 滚动条 Scrollbar ─────────────────── */
+  --color-scrollbar-thumb:  #393f4f7a;
+  --color-scrollbar-track:  transparent;
+
+  /* ── 文字补充 Content ─────────────────── */
+  --color-text-on-brand:    #ffffff;     /* 品牌填充上的文字 */
+  --color-text-disabled:    #535963;
+  --color-text-link:        var(--color-brand-default);
+
+  /* ── 图标补充 Icon ────────────────────── */
+  --color-icon-primary:     #f2f4f6;
+  --color-icon-tertiary:    #535963;
+
+  /* ── 分割线/实色卡片补充（来源 Figma dark）─ */
+  --color-line-solid:       #2b2e33;     /* divider/secondary 实色分割线 */
+  --color-bg-card-solid:    #272d37;     /* fill/gray-solid / neutral-container 实色卡片 */
+
+  /* ── 其余 Figma dark 专有色 ───────────── */
+  --color-bg-fill-gray:     #3c4047;     /* fill/gray 实色灰填充 */
+  --color-bg-segment-sel:   #393f4fb8;   /* fill/segment-selected 选中分段 */
+  --color-brand-content-soft: #99bcff;   /* blue-content 品牌弱化文字 */
+  --color-warning-hover:    #ef9248;     /* warning-hover */
+  --color-error-container:  #381015;     /* red-container 错误容器底 */
+  --color-gold:             #ffe5b3;     /* functional/gold */
 }
 
 
