@@ -1678,6 +1678,7 @@
       min-height: auto;
       gap: var(--spacing-4);
       overflow: visible;
+      background: var(--color-bg-table);
     }
 
     .showcase-card--small:hover {
@@ -1689,10 +1690,9 @@
     }
 
     .showcase-card--small .showcase-card__icon-wrap {
-      width: 44px;
-      height: 44px;
+      width: 32px;
+      height: 32px;
       border-radius: var(--radius-lg);
-      background: var(--color-brand-container);
       color: var(--color-text-brand);
       display: flex;
       align-items: center;
@@ -1703,8 +1703,11 @@
     .showcase-card--small .showcase-card__icon {
       width: 32px;
       height: 32px;
+      min-width: 32px;
+      min-height: 32px;
       flex-shrink: 0;
-      color: currentColor;
+      display: block;
+      object-fit: contain;
       opacity: 1;
     }
 
@@ -1804,6 +1807,7 @@
       flex-direction: column;
       overflow: hidden;
       gap: 0;
+      background: var(--color-bg-table);
     }
 
     .showcase-card--feature:hover {
@@ -1814,11 +1818,11 @@
       flex: 1;
       position: relative;
       min-height: 300px;
-      background: var(--color-bg-card);
+      background: var(--color-bg-table);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: var(--spacing-5) var(--spacing-6);
+      padding: var(--spacing-10) var(--spacing-6);
       overflow: hidden;
     }
 
@@ -3507,7 +3511,7 @@
 
     /* ── FAQ ── */
     .faq {
-      padding: 120px 0;
+      padding: 60px 0 120px;
       background: var(--color-bg-page);
     }
 
@@ -4412,7 +4416,7 @@
           <!-- 1. 智能 K 线 -->
           <article class="showcase-card showcase-card--small">
             <div class="showcase-card__icon-wrap" aria-hidden="true">
-              <img src="./assets/icons/demo_trading_light.svg" alt="" class="showcase-card__icon" data-theme-src-light="./assets/icons/demo_trading_light.svg" data-theme-src-dark="./assets/icons/demo_trading_dark.svg" />
+              <img src="./assets/icons/demo_trading_light.svg" alt="" class="showcase-card__icon" width="32" height="32" data-theme-src-light="./assets/icons/demo_trading_light.svg" data-theme-src-dark="./assets/icons/demo_trading_dark.svg" />
             </div>
             <div class="showcase-card__body">
               <h3 class="showcase-card__title">智能 K 线</h3>
@@ -4429,7 +4433,7 @@
           <!-- 2. AI 投顾 -->
           <article class="showcase-card showcase-card--small">
             <div class="showcase-card__icon-wrap" aria-hidden="true">
-              <img src="./assets/icons/news_light.svg" alt="" class="showcase-card__icon" data-theme-src-light="./assets/icons/news_light.svg" data-theme-src-dark="./assets/icons/news_light.svg" />
+              <img src="./assets/icons/news_light.svg" alt="" class="showcase-card__icon" width="32" height="32" data-theme-src-light="./assets/icons/news_light.svg" data-theme-src-dark="./assets/icons/news_dark.svg" />
             </div>
             <div class="showcase-card__body">
               <h3 class="showcase-card__title">AI 投顾</h3>
@@ -4446,7 +4450,7 @@
           <!-- 3. AI 榜单 -->
           <article class="showcase-card showcase-card--small">
             <div class="showcase-card__icon-wrap" aria-hidden="true">
-              <img src="./assets/icons/web header icon_light.svg" alt="" class="showcase-card__icon" data-theme-src-light="./assets/icons/web header icon_light.svg" data-theme-src-dark="./assets/icons/web header icon_dark.svg" />
+              <img src="./assets/icons/ai-rank_light.svg" alt="" class="showcase-card__icon" width="32" height="32" data-theme-src-light="./assets/icons/ai-rank_light.svg" data-theme-src-dark="./assets/icons/ai-rank_dark.svg" />
             </div>
             <div class="showcase-card__body">
               <h3 class="showcase-card__title">AI 榜单</h3>
@@ -4463,7 +4467,7 @@
           <!-- 4. AI 风控 -->
           <article class="showcase-card showcase-card--small">
             <div class="showcase-card__icon-wrap" aria-hidden="true">
-              <img src="./assets/icons/MEXC Verify_light.svg" alt="" class="showcase-card__icon" data-theme-src-light="./assets/icons/MEXC Verify_light.svg" data-theme-src-dark="./assets/icons/MEXC Verify_dark.svg" />
+              <img src="./assets/icons/MEXC Verify_light.svg" alt="" class="showcase-card__icon" width="32" height="32" data-theme-src-light="./assets/icons/MEXC Verify_light.svg" data-theme-src-dark="./assets/icons/MEXC Verify_dark.svg" />
             </div>
             <div class="showcase-card__body">
               <h3 class="showcase-card__title">AI 风控</h3>
