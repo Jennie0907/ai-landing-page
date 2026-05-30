@@ -39,8 +39,9 @@
 
   /* ── 品牌色 Brand ─────────────────────── */
   --color-brand-default:    #0057ff;   /* brand/default */
-  --color-brand-hover:      #0047e0;
-  --color-brand-pressed:    #0039c0;
+  --color-brand-hover:      #3379ff;   /* brand/hover */
+  --color-brand-pressed:    #0046cc;   /* brand/pressed */
+  --color-brand-loading:    #3379ff;   /* brand/loading — 同 hover */
   --color-brand-disabled:   #0057ff40;
   --color-brand-tint:       #1463ff33; /* [web color]/tint/blue-smooth */
   --color-brand-container:  #b4bfd61f; /* [web color]/fill/opacity-container */

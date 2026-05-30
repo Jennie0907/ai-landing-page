@@ -60,8 +60,9 @@ color: #0d0e0f;
 ### 品牌色（蓝色系）
 ```
 --color-brand-default:   #0057ff ← CTA 按钮、链接、主要操作
---color-brand-hover:     #0047e0 ← hover 状态
---color-brand-pressed:   #0039c0 ← 按下状态
+--color-brand-hover:     #3379ff ← hover 状态（来源 Figma brand/hover）
+--color-brand-pressed:   #0046cc ← 按下状态（来源 Figma brand/pressed）
+--color-brand-loading:   #3379ff ← loading 状态背景，同 hover（内容含 loading icon，opacity 0.7）
 --color-brand-container: #b4bfd61f ← 品牌色容器背景（tag、用户气泡等浅蓝底）
 --color-brand-tint:      #1463ff33 ← 蓝色 tint
 --color-text-brand:      #0057ff ← 蓝色文字
@@ -148,19 +149,31 @@ body {
 ## 组件规范
 
 ### CTA 主按钮（品牌蓝）
+> 来源：Figma Standard Button 组件（node 127:5752），4 个状态已核对
+
 ```css
 .btn-primary {
   background: var(--color-brand-default); /* #0057ff */
   color: var(--color-text-white);
-  border-radius: var(--radius-md);
-  font: var(--text-body-14-med);
-  padding: 10px var(--spacing-6);
+  border-radius: 999px;                   /* 全圆角胶囊形，Figma: var(--full) */
+  font-size: 16px;
+  line-height: 24px;
+  font-family: var(--font-family-base);   /* MEXC Sans */
+  padding: 16px 28px;
   border: none;
   transition: background var(--transition-fast);
-  box-shadow: var(--shadow-brand);
 }
-.btn-primary:hover  { background: var(--color-brand-hover); }
-.btn-primary:active { background: var(--color-brand-pressed); }
+.btn-primary:hover   { background: var(--color-brand-hover); }   /* #3379ff */
+.btn-primary:active  { background: var(--color-brand-pressed); } /* #0046cc */
+
+/* Loading 状态：背景同 hover，内容（icon + 文字）整体 opacity 0.7 */
+.btn-primary.loading,
+.btn-primary[disabled] {
+  background: var(--color-brand-loading); /* #3379ff */
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.btn-primary.loading .btn-content { opacity: 0.7; }
 ```
 
 ### Ghost / 线框按钮
