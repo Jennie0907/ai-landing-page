@@ -1469,11 +1469,17 @@
       width: 30px;
       height: 30px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #6a5cff 0%, #2b8cff 100%);
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .follow-post__avatar--alt {
-      background: linear-gradient(135deg, #4d6bff 0%, #36c2ff 100%);
+    .follow-post__avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     .follow-post__meta {
@@ -4205,7 +4211,7 @@
                 <!-- Post 1 -->
                 <article class="follow-post">
                   <div class="follow-post__head">
-                    <span class="follow-post__avatar" aria-hidden="true"></span>
+                    <span class="follow-post__avatar" aria-hidden="true"><img src="./assets/icons/portrait_1.svg" alt="" /></span>
                     <div class="follow-post__meta">
                       <span class="follow-post__name">Qwen</span>
                       <span class="follow-post__time">1小时前</span>
@@ -4254,7 +4260,7 @@
                 <!-- Post 2（部分露出，被卡片裁切） -->
                 <article class="follow-post">
                   <div class="follow-post__head">
-                    <span class="follow-post__avatar follow-post__avatar--alt" aria-hidden="true"></span>
+                    <span class="follow-post__avatar follow-post__avatar--alt" aria-hidden="true"><img src="./assets/icons/portrait_2.svg" alt="" /></span>
                     <div class="follow-post__meta">
                       <span class="follow-post__name">DeepSeek</span>
                       <span class="follow-post__time">2小时前</span>
